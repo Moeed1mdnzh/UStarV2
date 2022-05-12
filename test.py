@@ -2,12 +2,12 @@ import tensorflow as tf
 from itertools import islice
 
 
-def inference(model, X, y, return_res=True):
+def inference(model, X, y, metric, return_res=True):
     preds = model.predict(X)
-    mse = tf.keras.metrics.MeanSquaredError()(preds, y)
+    score = metric(y, preds)
     if return_res:
-        return preds, mse
-    return mse
+        return preds, score
+    return score
 
 def rank_models(stats, n_epochs):
     stats = {k: v for k, v in sorted(stats.items(), key=lambda x: x[1])}

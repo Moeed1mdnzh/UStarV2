@@ -5,24 +5,35 @@ import logging
 import argparse
 import numpy as np 
 from test import *
+from metrics import *
 import tensorflow as tf
 from UNet.configs import *
+from InceptionV3.configs import *
 from matplotlib import pyplot as plt
 from utilities.augmentation import *
 from imutils.paths import list_images
 from utilities.plotting_utility import *
 from UNet.generator.generator import Generator
+from InceptionV3.inceptionv3 import InceptionV3
 from sklearn.model_selection import train_test_split
 from UNet.discriminator.discriminator import Discriminator 
 
 tf.get_logger().setLevel(logging.ERROR)
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-v", "--visualize", required=True, default=True, type=bool,
+ap.add_argument("-v", "--visualize", default=True, type=bool,
                 help="To wether save the visualizations or not")
-ap.add_argument("-e", "--evaluate", required=True, default=True, type=bool,
+ap.add_argument("-e", "--evaluate", default=False, type=bool,
                 help="To wether evaluate the model or not")
-ap.add_argument("-s", "--save", required=True, default=True, type=bool,
+ap.add_argument("-m", "--metric", default="is", type=str, choices=["mse", "mae", 
+                                                                   "rmse", "is",
+                                                                   "fid"],
+                help="The metric used for evaluation after training")
+ap.add_argument("-r", "--rank", required=True, type=str, choices=["mse", "mae", 
+                                                                   "rmse", "is",
+                                                                   "fid"],
+                help="The metric used for the ranking system")
+ap.add_argument("-s", "--save", default=True, type=bool,
                 help="To wether save the best model or not")
 args = vars(ap.parse_args())
 
@@ -94,6 +105,60 @@ for i, Ximg in  enumerate(X_targets_train):
     for Xset in [mirrored_X, light_X, rotated_X, zoomed_outX, transferred_X]:
         for Ximg in Xset:
             augmented_X_targets.append(Ximg)
+     
+special_metrics = ["fid", "is"]     
+if any([args[arg] in special_metric for arg in ["metric", "rank"]]):    
+    inception_X, inception_y = [], []         
+    for image in  X_targets:
+        inception_X.append(image)
+        inception_y.append(0)
+        
+        mirrored_X = mirror(image)
+
+        rotated_X = rotate(image)
+
+        zoomed_outX = zoom_out(image)
+
+        transferred_X = transfer(image, 0.4) 
+
+        for i, Xset in enumerate([mirrored_X, rotated_X, zoomed_outX, transferred_X]):
+            for Ximg in Xset:
+                inception_X.append(Ximg)
+                inception_y.append(i+1)
+                
+    inception_X = np.array(inception_X).astype("float32")
+    inception_y = tf.keras.utils.to_categorical(y, 5)
+    incX_train, incX_test, incy_train, incy_test = train_test_split(inception_X, 
+                                                                    inception_y,
+                                                                    test_size=0.25,
+                                                                    random_state=42,
+                                                                    shuffle=True)
+    print(f"Inception train images shape: {X_train.shape}\nInception train labels shape: {y_train.shape}\n")
+    print(f"Inception Test images shape: {X_test.shape}\nInception Test labels shape: {y_test.shape}")
+    incX_train, incX_test = X_train / 255.0, X_test / 255.0
+    inception_model = InceptionV3(NUM_CLASSES, FREEZE_LAYERS, INCEPTION_SHAPE).build_inception_model()
+    for epoch in range(INCEPTION_EPOCHS):
+        epoch_widgets = inception_widgets.copy()
+        epoch_widgets[0] = epoch_widgets[0] % (str(epoch+1), str(INCEPTION_EPOCHS))
+        pbar = progressbar.ProgressBar(maxval=len(incX_train) // INCEPTION_BATCH_SIZE, 
+                                       widgets=epoch_widgets).start()
+        for i, j in enumerate(range(0, len(incX_train), INCEPTION_BATCH_SIZE)):
+            X_batch, y_batch = incX_train[j: j+INCEPTION_BATCH_SIZE], incy_train[j: j+INCEPTION_BATCH_SIZE]
+            with tf.GradientTape() as tape:
+                y_pred = inception_model(X_batch, training=True)
+                loss = inception_loss(y_batch, y_pred)
+            gradients = tape.gradient(loss, inception_model.trainable_weights)
+            inception_opt.apply_gradients(zip(gradients, inception_model.trainable_weights))
+            y_pred = inception_model.predict(X_batch)
+            acc = acc_fn(np.argmax(y_batch, axis=1), np.argmax(y_pred, axis=1))
+            loss = inception_loss2(y_batch, y_pred)
+            indices = np.random.randint(0, len(incX_test), INCEPTION_TEST_SAMPLE)
+            y_pred = inception_model.predict(incX_test[indices])
+            val_acc = acc_fn(np.argmax(incy_test[indices], axis=1), np.argmax(y_pred, axis=1))
+            val_loss = val_inception_loss(incy_test[indices], y_pred)
+            pbar.update(i, inception_loss=loss, inception_accuracy=acc,
+                        val_inception_loss=val_loss, val_inception_accuracy=val_acc)
+        pbar.finish()
 
 augmented_X_images, augmented_X_targets = np.array(augmented_X_images), np.array(augmented_X_targets)
 indices = np.arange(augmented_X_images.shape[0])
@@ -114,14 +179,12 @@ discriminator = Discriminator(DISC_SHAPE, tf.keras.initializers.RandomNormal(std
 generator = Generator(GEN_SHAPE, tf.keras.initializers.RandomNormal(stddev=0.02)).build_model()
 
 discriminator.trainable = False
-disc_opt = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
-gen_opt = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
 
 for epoch in range(N_EPOCHS):
     epoch_widgets = widgets.copy()
     epoch_widgets[0] = epoch_widgets[0] % (str(epoch+1), str(N_EPOCHS))
     pbar = progressbar.ProgressBar(maxval=len(augmented_X_images) // BATCH_SIZE, 
-                               widgets=epoch_widgets).start()
+                                   widgets=epoch_widgets).start()
     for i, j in enumerate(range(0, len(augmented_X_images), BATCH_SIZE)):
         batch_images = augmented_X_images[j: j+BATCH_SIZE]
         batch_targets = augmented_X_targets[j: j+BATCH_SIZE]
@@ -161,11 +224,16 @@ for epoch in range(N_EPOCHS):
     pbar.finish()
 
 stats = {}
+metric_names = {"mse": mse.MeanSquaredError,
+                "mae": mae.MeanAbsoluteError,
+                "rmse": rmse.RootMeanSquaredError,
+                "is": IS.InceptionScore ,
+                "fid": fid.FrechetInceptionDistance}
 for i in range(N_EPOCHS):
     model = tf.keras.models.load_model(os.sep.join(["UNet", "models", f"generator_{i+1}.h5"]))
-    mse = inference(model, X_images_test, X_targets_test,
-                    return_res=False)
-    stats[str(i+1)] = float(mse.numpy())
+    score = inference(model, X_images_test, X_targets_test,
+                    metric_names[args["rank"]], return_res=False)
+    stats[str(i+1)] = float(score.numpy())
 ranks = rank_models(stats, N_EPOCHS)
 
 if args["save"]:

@@ -2,5 +2,5 @@
 
 from numpy import mean
 
-def mse(y, y_pred):
+def MeanSquaredError(y, y_pred):
     return mean((y-y_pred)**2)

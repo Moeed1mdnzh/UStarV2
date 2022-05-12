@@ -2,5 +2,5 @@
 
 from numpy import mean, absolute 
 
-def mae(y, y_pred):
+def MeanAbsoluteError(y, y_pred):
     return mean(absolute(y-y_pred))
