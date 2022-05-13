@@ -2,9 +2,13 @@ import tensorflow as tf
 from itertools import islice
 
 
-def inference(model, X, y, metric, return_res=True):
+def inference(model, X, y, metric, inception_model=None, prep=None, return_res=True):
     preds = model.predict(X)
-    score = metric(y, preds)
+    if metric in ["fid", "is"]:
+        denormalized = np.uint8(((preds+1.0)/2.0)*255.0)
+        score, std = metric(denormalized, inception_model, prep)
+    else:
+        score = metric(y, preds)
     if return_res:
         return preds, score
     return score

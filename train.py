@@ -106,7 +106,8 @@ for i, Ximg in  enumerate(X_targets_train):
         for Ximg in Xset:
             augmented_X_targets.append(Ximg)
      
-special_metrics = ["fid", "is"]     
+special_metrics = ["fid", "is"]  
+inception_model = None   
 if any([args[arg] in special_metric for arg in ["metric", "rank"]]):    
     inception_X, inception_y = [], []         
     for image in  X_targets:
@@ -136,7 +137,7 @@ if any([args[arg] in special_metric for arg in ["metric", "rank"]]):
     print(f"Inception train images shape: {X_train.shape}\nInception train labels shape: {y_train.shape}\n")
     print(f"Inception Test images shape: {X_test.shape}\nInception Test labels shape: {y_test.shape}")
     incX_train, incX_test = X_train / 255.0, X_test / 255.0
-    inception_model = InceptionV3(NUM_CLASSES, FREEZE_LAYERS, INCEPTION_SHAPE).build_inception_model()
+    inception_model, inception_prep = InceptionV3(NUM_CLASSES, FREEZE_LAYERS, INCEPTION_SHAPE).build_inception_model()
     for epoch in range(INCEPTION_EPOCHS):
         epoch_widgets = inception_widgets.copy()
         epoch_widgets[0] = epoch_widgets[0] % (str(epoch+1), str(INCEPTION_EPOCHS))
@@ -159,6 +160,7 @@ if any([args[arg] in special_metric for arg in ["metric", "rank"]]):
             pbar.update(i, inception_loss=loss, inception_accuracy=acc,
                         val_inception_loss=val_loss, val_inception_accuracy=val_acc)
         pbar.finish()
+    inception_model.save(os.sep.join(["InceptionV3", "inceptionv3.h5"]))
 
 augmented_X_images, augmented_X_targets = np.array(augmented_X_images), np.array(augmented_X_targets)
 indices = np.arange(augmented_X_images.shape[0])
@@ -232,7 +234,7 @@ metric_names = {"mse": mse.MeanSquaredError,
 for i in range(N_EPOCHS):
     model = tf.keras.models.load_model(os.sep.join(["UNet", "models", f"generator_{i+1}.h5"]))
     score = inference(model, X_images_test, X_targets_test,
-                    metric_names[args["rank"]], return_res=False)
+                      metric_names[args["rank"]], inception_model, inception_prep, return_res=False)
     stats[str(i+1)] = float(score.numpy())
 ranks = rank_models(stats, N_EPOCHS)
 
@@ -241,7 +243,7 @@ if args["save"]:
     path = os.sep.join(["UNet", "best_model"])
     os.system(f"mkdir {path}")
     model = tf.keras.models.load_model(os.sep.join(["UNet", "models", f"generator_{best}.h5"]))
-    model.save(os.sep.join(["UNet", "best_model", f"best_model.h5"]))
+    model.save(os.sep.join(["UNet", "best_model", "best_model.h5"]))
 
 if args["evaluate"]:
     index = np.random.randint(0, X_images_test.shape[0])
@@ -257,16 +259,18 @@ if args["evaluate"]:
     plt.axis("off")
     plt.title("target")
     k = 3
-    for i, (model_id, mse) in enumerate(ranks.items()):
+    for i, (model_id, score) in enumerate(ranks.items()):
         plt.subplot(6, 2, i + k)
         plt.imshow((_input + 1.0)/2.0)
         plt.axis("off")
         plt.subplot(6, 2, i + k + 1)
         model = tf.keras.models.load_model(os.sep.join(["UNet", "models", f"generator_{model_id}.h5"]))
-        pred, mse = inference(model, np.expand_dims(_input, 0), target)
+        pred, score = inference(model, np.expand_dims(_input, 0), target,
+                                metric_names[args["rank"]], inception_model, inception_prep)
         plt.imshow((pred.squeeze()+1.0)/2.0)
         plt.axis("off")
         k += 1
-    with open('mse_ranks.json', 'w', encoding='utf-8') as f:
+    metric_name = args["metric"]
+    with open(f"{name}_ranks.json", "w", encoding="utf-8") as f:
         json.dump(ranks, f, ensure_ascii=False, indent=4)
     plt.savefig("evaluation_result.png", dpi=fig.dpi)
