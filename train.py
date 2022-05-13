@@ -5,7 +5,12 @@ import logging
 import argparse
 import numpy as np 
 from test import *
-from metrics import *
+from metrics import IS
+from metrics import mse
+from metrics import mae
+from metrics import rmse 
+from metrics import fid 
+quit()
 import tensorflow as tf
 from UNet.configs import *
 from InceptionV3.configs import *
@@ -108,7 +113,7 @@ for i, Ximg in  enumerate(X_targets_train):
      
 special_metrics = ["fid", "is"]  
 inception_model = None   
-if any([args[arg] in special_metric for arg in ["metric", "rank"]]):    
+if any([args[arg] in special_metrics for arg in ["metric", "rank"]]):    
     inception_X, inception_y = [], []         
     for image in  X_targets:
         inception_X.append(image)
@@ -266,7 +271,7 @@ if args["evaluate"]:
         plt.subplot(6, 2, i + k + 1)
         model = tf.keras.models.load_model(os.sep.join(["UNet", "models", f"generator_{model_id}.h5"]))
         pred, score = inference(model, np.expand_dims(_input, 0), target,
-                                metric_names[args["rank"]], inception_model, inception_prep)
+                                metric_names[args["metric"]], inception_model, inception_prep)
         plt.imshow((pred.squeeze()+1.0)/2.0)
         plt.axis("off")
         k += 1

@@ -1,5 +1,4 @@
 #  Implementation of Mean Squared Error
-
 from numpy import mean
 
 def MeanSquaredError(y, y_pred):
