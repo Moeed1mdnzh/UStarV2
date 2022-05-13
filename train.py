@@ -141,7 +141,7 @@ if any([args[arg] in special_metrics for arg in ["metric", "rank"]]):
                                                                     shuffle=True)
     print(f"Inception train images shape: {incX_train.shape}\nInception train labels shape: {incy_train.shape}\n")
     print(f"Inception Test images shape: {incX_test.shape}\nInception Test labels shape: {incy_test.shape}")
-    incX_train, incX_test = incX_train / 255.0, incX_test / 255.0
+    incX_test = incX_test / 255.0
     inception_model, inception_prep = InceptionV3(NUM_CLASSES, FREEZE_LAYERS, INCEPTION_SHAPE).build_inception_model()
     for epoch in range(INCEPTION_EPOCHS):
         epoch_widgets = inception_widgets.copy()
@@ -150,6 +150,8 @@ if any([args[arg] in special_metrics for arg in ["metric", "rank"]]):
                                        widgets=epoch_widgets).start()
         for i, j in enumerate(range(0, len(incX_train), INCEPTION_BATCH_SIZE)):
             X_batch, y_batch = incX_train[j: j+INCEPTION_BATCH_SIZE], incy_train[j: j+INCEPTION_BATCH_SIZE]
+            X_batch = X_batch / 255.0 
+            incX_train[j: j+INCEPTION_BATCH_SIZE] = X_batch
             with tf.GradientTape() as tape:
                 y_pred = inception_model(X_batch, training=True)
                 loss = inception_loss(y_batch, y_pred)
