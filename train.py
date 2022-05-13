@@ -10,7 +10,6 @@ from metrics import mse
 from metrics import mae
 from metrics import rmse 
 from metrics import fid 
-quit()
 import tensorflow as tf
 from UNet.configs import *
 from InceptionV3.configs import *
