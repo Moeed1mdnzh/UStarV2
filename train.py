@@ -111,7 +111,8 @@ for i, Ximg in  enumerate(X_targets_train):
             augmented_X_targets.append(Ximg)
      
 special_metrics = ["fid", "is"]  
-inception_model = None   
+inception_model = None  
+inception_prep = None   
 if any([args[arg] in special_metrics for arg in ["metric", "rank"]]):    
     inception_X, inception_y = [], []         
     for image in  X_targets:
@@ -132,15 +133,15 @@ if any([args[arg] in special_metrics for arg in ["metric", "rank"]]):
                 inception_y.append(i+1)
                 
     inception_X = np.array(inception_X).astype("float32")
-    inception_y = tf.keras.utils.to_categorical(y, 5)
+    inception_y = tf.keras.utils.to_categorical(inception_y, 5)
     incX_train, incX_test, incy_train, incy_test = train_test_split(inception_X, 
                                                                     inception_y,
                                                                     test_size=0.25,
                                                                     random_state=42,
                                                                     shuffle=True)
-    print(f"Inception train images shape: {X_train.shape}\nInception train labels shape: {y_train.shape}\n")
-    print(f"Inception Test images shape: {X_test.shape}\nInception Test labels shape: {y_test.shape}")
-    incX_train, incX_test = X_train / 255.0, X_test / 255.0
+    print(f"Inception train images shape: {incX_train.shape}\nInception train labels shape: {incy_train.shape}\n")
+    print(f"Inception Test images shape: {incX_test.shape}\nInception Test labels shape: {incy_test.shape}")
+    incX_train, incX_test = incX_train / 255.0, incX_test / 255.0
     inception_model, inception_prep = InceptionV3(NUM_CLASSES, FREEZE_LAYERS, INCEPTION_SHAPE).build_inception_model()
     for epoch in range(INCEPTION_EPOCHS):
         epoch_widgets = inception_widgets.copy()
@@ -239,7 +240,7 @@ for i in range(N_EPOCHS):
     model = tf.keras.models.load_model(os.sep.join(["UNet", "models", f"generator_{i+1}.h5"]))
     score = inference(model, X_images_test, X_targets_test,
                       metric_names[args["rank"]], inception_model, inception_prep, return_res=False)
-    stats[str(i+1)] = float(score.numpy())
+    stats[str(i+1)] = float(score)
 ranks = rank_models(stats, N_EPOCHS)
 
 if args["save"]:
@@ -275,6 +276,6 @@ if args["evaluate"]:
         plt.axis("off")
         k += 1
     metric_name = args["metric"]
-    with open(f"{name}_ranks.json", "w", encoding="utf-8") as f:
+    with open(f"{metric_name}_ranks.json", "w", encoding="utf-8") as f:
         json.dump(ranks, f, ensure_ascii=False, indent=4)
     plt.savefig("evaluation_result.png", dpi=fig.dpi)
