@@ -16,4 +16,4 @@ class InceptionV3:
         model = tf.keras.models.Model(inputs=inceptionv3.inputs, outputs=x)
         for i in range(self.freeze_layers):
             model.layers[i].trainable = False
-        return model, tf.keras.applications.preprocess_input
+        return model, tf.keras.applications.inception_v3.preprocess_input

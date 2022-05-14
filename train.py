@@ -114,60 +114,63 @@ special_metrics = ["fid", "is"]
 inception_model = None  
 inception_prep = None   
 if any([args[arg] in special_metrics for arg in ["metric", "rank"]]):    
-    inception_X, inception_y = [], []         
-    for image in  X_targets:
-        inception_X.append(image)
-        inception_y.append(0)
-        
-        mirrored_X = mirror(image)
+    if TRAIN_INCEPTION:
+        inception_X, inception_y = [], []         
+        for image in  X_targets:
+            inception_X.append(image)
+            inception_y.append(0)
+            
+            mirrored_X = mirror(image)
 
-        rotated_X = rotate(image)
+            rotated_X = rotate(image)
 
-        zoomed_outX = zoom_out(image)
+            zoomed_outX = zoom_out(image)
 
-        transferred_X = transfer(image, 0.4) 
+            transferred_X = transfer(image, 0.4) 
 
-        for i, Xset in enumerate([mirrored_X, rotated_X, zoomed_outX, transferred_X]):
-            for Ximg in Xset:
-                inception_X.append(Ximg)
-                inception_y.append(i+1)
-                
-    inception_X = np.array(inception_X).astype("float32")
-    inception_y = tf.keras.utils.to_categorical(inception_y, 5)
-    incX_train, incX_test, incy_train, incy_test = train_test_split(inception_X, 
-                                                                    inception_y,
-                                                                    test_size=0.25,
-                                                                    random_state=42,
-                                                                    shuffle=True)
-    print(f"Inception train images shape: {incX_train.shape}\nInception train labels shape: {incy_train.shape}\n")
-    print(f"Inception Test images shape: {incX_test.shape}\nInception Test labels shape: {incy_test.shape}")
-    incX_test = incX_test / 255.0
-    inception_model, inception_prep = InceptionV3(NUM_CLASSES, FREEZE_LAYERS, INCEPTION_SHAPE).build_inception_model()
-    for epoch in range(INCEPTION_EPOCHS):
-        epoch_widgets = inception_widgets.copy()
-        epoch_widgets[0] = epoch_widgets[0] % (str(epoch+1), str(INCEPTION_EPOCHS))
-        pbar = progressbar.ProgressBar(maxval=len(incX_train) // INCEPTION_BATCH_SIZE, 
-                                       widgets=epoch_widgets).start()
+            for i, Xset in enumerate([mirrored_X, rotated_X, zoomed_outX, transferred_X]):
+                for Ximg in Xset:
+                    inception_X.append(Ximg)
+                    inception_y.append(i+1)
+                    
+        inception_X = np.array(inception_X).astype("float32")
+        inception_y = tf.keras.utils.to_categorical(inception_y, 5)
+        incX_train, incX_test, incy_train, incy_test = train_test_split(inception_X, 
+                                                                        inception_y,
+                                                                        test_size=0.25,
+                                                                        random_state=42,
+                                                                        shuffle=True)
+        print(f"Inception train images shape: {incX_train.shape}\nInception train labels shape: {incy_train.shape}\n")
+        print(f"Inception Test images shape: {incX_test.shape}\nInception Test labels shape: {incy_test.shape}")
+        incX_test = incX_test / 255.0
         for i, j in enumerate(range(0, len(incX_train), INCEPTION_BATCH_SIZE)):
-            X_batch, y_batch = incX_train[j: j+INCEPTION_BATCH_SIZE], incy_train[j: j+INCEPTION_BATCH_SIZE]
-            X_batch = X_batch / 255.0 
-            incX_train[j: j+INCEPTION_BATCH_SIZE] = X_batch
-            with tf.GradientTape() as tape:
-                y_pred = inception_model(X_batch, training=True)
-                loss = inception_loss(y_batch, y_pred)
-            gradients = tape.gradient(loss, inception_model.trainable_weights)
-            inception_opt.apply_gradients(zip(gradients, inception_model.trainable_weights))
-            y_pred = inception_model.predict(X_batch)
-            acc = acc_fn(np.argmax(y_batch, axis=1), np.argmax(y_pred, axis=1))
-            loss = inception_loss2(y_batch, y_pred)
-            indices = np.random.randint(0, len(incX_test), INCEPTION_TEST_SAMPLE)
-            y_pred = inception_model.predict(incX_test[indices])
-            val_acc = acc_fn(np.argmax(incy_test[indices], axis=1), np.argmax(y_pred, axis=1))
-            val_loss = val_inception_loss(incy_test[indices], y_pred)
-            pbar.update(i, inception_loss=loss, inception_accuracy=acc,
-                        val_inception_loss=val_loss, val_inception_accuracy=val_acc)
-        pbar.finish()
-    inception_model.save(os.sep.join(["InceptionV3", "inceptionv3.h5"]))
+            incX_train[j: j+INCEPTION_BATCH_SIZE] = incX_train[j: j+INCEPTION_BATCH_SIZE] / 255.0
+        inception_model, inception_prep = InceptionV3(NUM_CLASSES, FREEZE_LAYERS, INCEPTION_SHAPE).build_model()
+        for epoch in range(INCEPTION_EPOCHS):
+            epoch_widgets = inception_widgets.copy()
+            epoch_widgets[0] = epoch_widgets[0] % (str(epoch+1), str(INCEPTION_EPOCHS))
+            pbar = progressbar.ProgressBar(maxval=len(incX_train) // INCEPTION_BATCH_SIZE, 
+                                        widgets=epoch_widgets).start()
+            for i, j in enumerate(range(0, len(incX_train), INCEPTION_BATCH_SIZE)):
+                X_batch, y_batch = incX_train[j: j+INCEPTION_BATCH_SIZE], incy_train[j: j+INCEPTION_BATCH_SIZE]
+                with tf.GradientTape() as tape:
+                    y_pred = inception_model(X_batch, training=True)
+                    loss = inception_loss(y_batch, y_pred)
+                gradients = tape.gradient(loss, inception_model.trainable_weights)
+                inception_opt.apply_gradients(zip(gradients, inception_model.trainable_weights))
+                y_pred = inception_model.predict(X_batch)
+                acc = acc_fn(np.argmax(y_batch, axis=1), np.argmax(y_pred, axis=1))
+                loss = inception_loss2(y_batch, y_pred)
+                indices = np.random.randint(0, len(incX_test), INCEPTION_TEST_SAMPLE)
+                y_pred = inception_model.predict(incX_test[indices])
+                val_acc = acc_fn(np.argmax(incy_test[indices], axis=1), np.argmax(y_pred, axis=1))
+                val_loss = val_inception_loss(incy_test[indices], y_pred)
+                pbar.update(i, inception_loss=loss, inception_accuracy=acc,
+                            val_inception_loss=val_loss, val_inception_accuracy=val_acc)
+            pbar.finish()
+        inception_model.save(os.sep.join(["InceptionV3", "inceptionv3.h5"]))
+    else:
+        inception_model = tf.keras.models.load_model(os.sep.join(["InceptionV3", "inceptionv3.h5"]))
 
 augmented_X_images, augmented_X_targets = np.array(augmented_X_images), np.array(augmented_X_targets)
 indices = np.arange(augmented_X_images.shape[0])
