@@ -6,7 +6,7 @@ def FrechetInceptionDistance(X, model, prep, batch_size, eps=1E-16):
     scores = list()
     l = 0
     for i in range(int(len(images) / batch_size)):
-        ix_start, ix_end = l, l+batch_size
+        ix_start, ix_end = i, i+batch_size
         subset = X[ix_start: ix_end]
         subset = subset.astype("float32")
         subset = prep(subset)

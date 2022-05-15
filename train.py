@@ -173,6 +173,7 @@ if any([args[arg] in special_metrics for arg in ["metric", "rank"]]):
         os.system("gdown https://drive.google.com/uc?id=1gnKc4d0RV1mLk0qKXooIbJPaCKUbewj0")
         os.system("mv 'inceptionv3.h5' 'InceptionV3' ")
         inception_model = tf.keras.models.load_model(os.sep.join(["InceptionV3", "inceptionv3.h5"]))
+        inception_prep = tf.keras.applications.inception_v3.preprocess_input
 
 augmented_X_images, augmented_X_targets = np.array(augmented_X_images), np.array(augmented_X_targets)
 indices = np.arange(augmented_X_images.shape[0])
@@ -246,7 +247,8 @@ metric_names = {"mse": mse.MeanSquaredError,
 for i in range(N_EPOCHS):
     model = tf.keras.models.load_model(os.sep.join(["UNet", "models", f"generator_{i+1}.h5"]))
     score = inference(model, X_images_test, X_targets_test,
-                      metric_names[args["rank"]], inception_model, inception_prep, return_res=False)
+                      (metric_names[args["rank"]], args["rank"]),
+                      inception_model, inception_prep, return_res=False)
     stats[str(i+1)] = float(score)
 ranks = rank_models(stats, N_EPOCHS)
 
@@ -278,7 +280,8 @@ if args["evaluate"]:
         plt.subplot(6, 2, i + k + 1)
         model = tf.keras.models.load_model(os.sep.join(["UNet", "models", f"generator_{model_id}.h5"]))
         pred, score = inference(model, np.expand_dims(_input, 0), target,
-                                metric_names[args["metric"]], inception_model, inception_prep)
+                                (metric_names[args["rank"]], args["rank"]),
+                                inception_model, inception_prep)
         plt.imshow((pred.squeeze()+1.0)/2.0)
         plt.axis("off")
         k += 1

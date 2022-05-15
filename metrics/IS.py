@@ -7,7 +7,7 @@ def InceptionScore(X, model, prep, batch_size=32, eps=1E-16):
     yhat = model.predict(processed)
     scores = list()
     for i in range(int(len(X) / batch_size)):
-        ix_start, ix_end = l, l+n_split
+        ix_start, ix_end = i, i+batch_size
         p_yx = yhat[ix_start:ix_end]
         p_y = np.expand_dims(p_yx.mean(axis=0), 0)
         kl_d = p_yx * (np.log(p_yx + eps) - np.log(p_y + eps))
