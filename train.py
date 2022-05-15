@@ -170,6 +170,8 @@ if any([args[arg] in special_metrics for arg in ["metric", "rank"]]):
             pbar.finish()
         inception_model.save(os.sep.join(["InceptionV3", "inceptionv3.h5"]))
     else:
+        os.system("gdown https://drive.google.com/uc?id=1gnKc4d0RV1mLk0qKXooIbJPaCKUbewj0")
+        os.system("mv 'inceptionv3.h5' 'InceptionV3' ")
         inception_model = tf.keras.models.load_model(os.sep.join(["InceptionV3", "inceptionv3.h5"]))
 
 augmented_X_images, augmented_X_targets = np.array(augmented_X_images), np.array(augmented_X_targets)

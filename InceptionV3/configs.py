@@ -2,6 +2,8 @@ import progressbar
 import tensorflow as tf 
 from sklearn.metrics import accuracy_score
 
+TRAIN_INCEPTION = False
+
 NUM_CLASSES = 5
 
 FREEZE_LAYERS = 104
