@@ -7,6 +7,9 @@ import torchvision
 from configs import *
 from imutils import paths
 import matplotlib.pyplot as plt
+from model.weight_init import init_weights
+from model.generator.generator import Generator
+from model.discriminator.discriminator import Discriminator
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 tfs = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
@@ -34,6 +37,10 @@ label_paths = list(paths.list_images(os.sep.join(["dataset", "labels"])))
 dataset = ImageDataset(im_paths, label_paths, tfs)
 dataset = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-
+G_model = Generator()
+D_model = Discriminator()
+G_model.apply(init_weights)
+D_model.apply(init_weights)
+print(G_model, D_model)
 
     

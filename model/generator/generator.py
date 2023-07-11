@@ -1,6 +1,6 @@
 import torch 
-from blocks.upsample import Upsample
-from blocks.downsample import Downsample
+from model.generator.blocks.upsample import Upsample
+from model.generator.blocks.downsample import Downsample
 
 class Generator(torch.nn.Module):
     def __init__(self):
