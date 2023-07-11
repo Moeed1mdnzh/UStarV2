@@ -6,6 +6,10 @@ BATCH_SIZE = 128
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-LOSS_FN = torch.nn.BCELoss()
+DISC_LOSS = torch.nn.BCELoss()
+GEN_LOSS_1 = torch.nn.BCELoss()
+GEN_LOSS_2 = torch.nn.L1Loss()
+
+N_EPOCHS = 40
 
 
