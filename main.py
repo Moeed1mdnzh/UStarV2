@@ -48,12 +48,12 @@ G_opt = torch.optim.Adam(G_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
-    d_labels_real = torch.ones(BATCH_SIZE, 1, device=DEVICE)
+    d_labels_real = torch.ones(x.size(0), 1, device=DEVICE)
     d_proba_real = discriminator(labels)
     d_loss_real = DISC_LOSS(d_proba_real, d_labels_real)
     g_output = generator(x)
     d_proba_fake = discriminator(g_output)
-    d_labels_fake = torch.zeros(BATCH_SIZE, 1, device=DEVICE)
+    d_labels_fake = torch.zeros(x.size(0), 1, device=DEVICE)
     d_loss_fake = DISC_LOSS(d_proba_fake, d_labels_fake)
     d_loss = d_loss_real + d_loss_fake
     d_loss.backward()
@@ -62,7 +62,7 @@ def d_train(x, labels, generator, discriminator):
 
 def g_train(x, labels, generator, discriminator):
     generator.zero_grad()
-    g_labels_real = torch.ones(BATCH_SIZE, 1, device=DEVICE)
+    g_labels_real = torch.ones(x.size(0), 1, device=DEVICE)
     g_output = generator(x)
     d_proba_fake = discriminator(g_output)
     g_loss1 = torch.unsqueeze(GEN_LOSS_1(d_proba_fake, g_labels_real), dim=0)
@@ -76,7 +76,7 @@ def g_train(x, labels, generator, discriminator):
 
 def create_samples(g_model, input_z):
     g_output = g_model(input_z)
-    images = torch.reshape(g_output, (BATCH_SIZE, *(192, 192, 3)))
+    images = torch.reshape(g_output, (input_z.size(0), *(192, 192, 3)))
     return (images+1)/2.0
 
 
