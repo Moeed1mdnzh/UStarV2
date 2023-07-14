@@ -76,7 +76,8 @@ def g_train(x, labels, generator, discriminator):
 def create_samples(g_model, input_z):
     g_output = g_model(input_z)
     image = g_output[0].permute(1, 2, 0)
-    return (image+1)/2.0
+    input_z = input_z[0].permute(1, 2, 0)
+    return (image+1)/2.0, (input_z+1)/2.0
 
 
 for epoch in range(1, N_EPOCHS):
@@ -89,5 +90,7 @@ for epoch in range(1, N_EPOCHS):
         g_losses += g_train(X_batch, y_batch, G_model, D_model)
     print(f"Epoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
     samples = create_samples(G_model, X_batch)
-    plt.imshow(samples.detach().cpu().numpy())
-    plt.savefig(f"{epoch}.png")
+    plt.imshow(samples[0].detach().cpu().numpy())
+    plt.savefig(f"res_{epoch}.png")
+    plt.imshow(samples[1].detach().cpu().numpy())
+    plt.savefig(f"input_{epoch}.png")

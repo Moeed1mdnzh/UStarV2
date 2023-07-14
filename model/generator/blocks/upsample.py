@@ -3,26 +3,26 @@ import torch
 class Upsample(torch.nn.Module):
     def __init__(self):
         super(Upsample, self).__init__()
-        self.conv_block_1 = torch.nn.ConvTranspose2d(512, 512, (4, 4), stride=(2, 2), padding=1)
-        self.bn_1 = torch.nn.BatchNorm2d(512)  
+        self.conv_block_1 = torch.nn.ConvTranspose2d(1024, 1024, (4, 4), stride=(2, 2), padding=1)
+        self.bn_1 = torch.nn.BatchNorm2d(1024)  
         self.act_1 = torch.nn.ReLU()
         
-        self.conv_block_2 = torch.nn.ConvTranspose2d(1024, 256, (4, 4), stride=(2, 2), padding=1)
-        self.bn_2 = torch.nn.BatchNorm2d(256)  
+        self.conv_block_2 = torch.nn.ConvTranspose2d(2048, 512, (4, 4), stride=(2, 2), padding=1)
+        self.bn_2 = torch.nn.BatchNorm2d(512)  
         self.act_2 = torch.nn.ReLU()
         
-        self.conv_block_3 = torch.nn.ConvTranspose2d(512, 128, (4, 4), stride=(2, 2), padding=1)
-        self.bn_3 = torch.nn.BatchNorm2d(128)  
+        self.conv_block_3 = torch.nn.ConvTranspose2d(1024, 256, (4, 4), stride=(2, 2), padding=1)
+        self.bn_3 = torch.nn.BatchNorm2d(256)  
         self.act_3 = torch.nn.ReLU()
         
-        self.conv_block_4 = torch.nn.ConvTranspose2d(256, 64, (4, 4), stride=(2, 2), padding=1)
-        self.bn_4 = torch.nn.BatchNorm2d(64)  
+        self.conv_block_4 = torch.nn.ConvTranspose2d(512, 128, (4, 4), stride=(2, 2), padding=1)
+        self.bn_4 = torch.nn.BatchNorm2d(128)  
         self.act_4 = torch.nn.ReLU()
         
-        self.conv_block_5 = torch.nn.ConvTranspose2d(128, 3, (4, 4), stride=(2, 2), padding=1)
+        self.conv_block_5 = torch.nn.ConvTranspose2d(256, 3, (4, 4), stride=(2, 2), padding=1)
         self.act_5 = torch.nn.Tanh()
         
-        self.conv_block_alt = torch.nn.Conv2d(512, 512, (4, 4), stride=(2, 2), padding=1)
+        self.conv_block_alt = torch.nn.Conv2d(1024, 1024, (4, 4), stride=(2, 2), padding=1)
         self.act_alt = torch.nn.ReLU()
               
         

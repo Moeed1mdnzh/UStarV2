@@ -3,18 +3,18 @@ import torch
 class Downsample(torch.nn.Module):
     def __init__(self):
         super(Downsample, self).__init__()
-        self.conv_block_1 = torch.nn.Conv2d(3, 64, (4, 4), stride=(2, 2), padding=1)
+        self.conv_block_1 = torch.nn.Conv2d(3, 128, (4, 4), stride=(2, 2), padding=1)
         self.act_1 = torch.nn.LeakyReLU(0.2)
         
-        self.conv_block_2 = torch.nn.Conv2d(64, 128, (4, 4), stride=(2, 2), padding=1)
-        self.bn_2 = torch.nn.BatchNorm2d(128)
+        self.conv_block_2 = torch.nn.Conv2d(128, 256, (4, 4), stride=(2, 2), padding=1)
+        self.bn_2 = torch.nn.BatchNorm2d(256)
         self.act_2 = torch.nn.LeakyReLU(0.2)
         
-        self.conv_block_3 = torch.nn.Conv2d(128, 256, (4, 4), stride=(2, 2), padding=1)
-        self.bn_3 = torch.nn.BatchNorm2d(256)
+        self.conv_block_3 = torch.nn.Conv2d(256, 512, (4, 4), stride=(2, 2), padding=1)
+        self.bn_3 = torch.nn.BatchNorm2d(512)
         self.act_3 = torch.nn.LeakyReLU(0.2)
         
-        self.conv_block_4 = torch.nn.Conv2d(256, 512, (4, 4), stride=(2, 2), padding=1)
+        self.conv_block_4 = torch.nn.Conv2d(512, 1024, (4, 4), stride=(2, 2), padding=1)
         self.bn_4 = torch.nn.BatchNorm2d(512)
         self.act_4 = torch.nn.LeakyReLU(0.2)
         
