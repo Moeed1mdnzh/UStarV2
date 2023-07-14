@@ -15,7 +15,7 @@ class Downsample(torch.nn.Module):
         self.act_3 = torch.nn.LeakyReLU(0.2)
         
         self.conv_block_4 = torch.nn.Conv2d(512, 1024, (4, 4), stride=(2, 2), padding=1)
-        self.bn_4 = torch.nn.BatchNorm2d(512)
+        self.bn_4 = torch.nn.BatchNorm2d(1024)
         self.act_4 = torch.nn.LeakyReLU(0.2)
         
         
