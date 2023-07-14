@@ -3,7 +3,6 @@ import cv2
 import time
 import torch
 import numpy as np
-from torch.types import Device
 import torchvision
 from configs import *
 from imutils import paths
@@ -76,8 +75,8 @@ def g_train(x, labels, generator, discriminator):
 
 def create_samples(g_model, input_z):
     g_output = g_model(input_z)
-    images = torch.reshape(g_output, (input_z.size(0), *(192, 192, 3)))
-    return (images+1)/2.0
+    image = g_output[0].permute(1, 2, 0)
+    return (image+1)/2.0
 
 
 for epoch in range(1, N_EPOCHS):
@@ -90,5 +89,5 @@ for epoch in range(1, N_EPOCHS):
         g_losses += g_train(X_batch, y_batch, G_model, D_model)
     print(f"Epoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
     samples = create_samples(G_model, X_batch)
-    plt.imshow(samples[0].detach().cpu().numpy())
-    plt.show()
+    plt.imshow(samples.detach().cpu().numpy())
+    plt.savefig(f"{epoch}.png")
