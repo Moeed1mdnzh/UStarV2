@@ -1,9 +1,11 @@
 import torch 
+from model.discriminator.blocks.minibatchstddev import MinibatchStddev
 
 class Discriminator(torch.nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-        self.conv_1 = torch.nn.Conv2d(3, 64, (4, 4), stride=(2, 2), padding=1)
+        self.minibatch_stddev = MinibatchStddev()
+        self.conv_1 = torch.nn.Conv2d(4, 64, (4, 4), stride=(2, 2), padding=1)
         self.act_1 = torch.nn.LeakyReLU(0.2)
         
         self.conv_2 = torch.nn.Conv2d(64, 128, (4, 4), stride=(2, 2), padding=1)
@@ -27,6 +29,7 @@ class Discriminator(torch.nn.Module):
         self.act_0 = torch.nn.Sigmoid()
         
     def forward(self, x):
+        x = self.minibatch_stddev(x)
         x = self.conv_1(x)
         x = self.act_1(x)
         

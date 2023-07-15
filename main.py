@@ -55,6 +55,7 @@ def d_train(x, labels, generator, discriminator):
     d_labels_fake = torch.zeros(x.size(0), 1, device=DEVICE)
     d_loss_fake = DISC_LOSS(d_proba_fake, d_labels_fake)
     d_loss = d_loss_real + d_loss_fake
+    d_loss = d_loss * 0.5
     d_loss.backward()
     D_opt.step()
     return d_loss.data.item()
