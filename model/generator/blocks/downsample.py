@@ -1,4 +1,5 @@
 import torch 
+from model.generator.blocks.pixelnorm import PixelNorm
 
 class Downsample(torch.nn.Module):
     def __init__(self):
@@ -7,15 +8,16 @@ class Downsample(torch.nn.Module):
         self.act_1 = torch.nn.LeakyReLU(0.2)
         
         self.conv_block_2 = torch.nn.Conv2d(128, 256, (4, 4), stride=(2, 2), padding=1)
-        self.bn_2 = torch.nn.BatchNorm2d(256)
+        self.bn_2 = PixelNorm()
+        # torch.nn.BatchNorm2d(256) increase
         self.act_2 = torch.nn.LeakyReLU(0.2)
         
         self.conv_block_3 = torch.nn.Conv2d(256, 512, (4, 4), stride=(2, 2), padding=1)
-        self.bn_3 = torch.nn.BatchNorm2d(512)
+        self.bn_3 = PixelNorm()
         self.act_3 = torch.nn.LeakyReLU(0.2)
         
         self.conv_block_4 = torch.nn.Conv2d(512, 1024, (4, 4), stride=(2, 2), padding=1)
-        self.bn_4 = torch.nn.BatchNorm2d(1024)
+        self.bn_4 = PixelNorm()
         self.act_4 = torch.nn.LeakyReLU(0.2)
         
         

@@ -34,19 +34,19 @@ class Discriminator(torch.nn.Module):
         x = self.act_1(x)
         
         x = self.conv_2(x)
-        x = self.bn_2(x)
+        # x = self.bn_2(x)
         x = self.act_2(x)
         
         x = self.conv_3(x)
-        x = self.bn_3(x)
+        # x = self.bn_3(x)
         x = self.act_3(x)
         
         x = self.conv_4(x)
-        x = self.bn_4(x)
+        # x = self.bn_4(x)
         x = self.act_4(x)
         
         x = self.conv_5(x)
-        x = self.bn_5(x)
+        # x = self.bn_5(x)
         x = self.act_5(x)
         
         x = self.flatten(x)
