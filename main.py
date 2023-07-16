@@ -6,6 +6,7 @@ import numpy as np
 import torchvision
 from configs import *
 from imutils import paths
+from datetime import datetime
 import matplotlib.pyplot as plt
 from model.weight_init import init_weights
 from model.generator.generator import Generator
@@ -84,12 +85,15 @@ def create_samples(g_model, input_z):
 for epoch in range(1, N_EPOCHS):
     d_losses, g_losses = 0, 0
     print(f"Training {epoch}/{N_EPOCHS}... ")
+    start_time = datetime.now() 
     for X_batch, y_batch in dataset:
         X_batch, y_batch = X_batch.to(DEVICE), y_batch.to(DEVICE)
         d_loss = d_train(X_batch, y_batch, G_model, D_model)
         d_losses += d_loss
         g_losses += g_train(X_batch, y_batch, G_model, D_model)
     print(f"Epoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
+    time_elapsed = datetime.now() - start_time 
+    print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
     samples = create_samples(G_model, X_batch)
     plt.imshow(samples[0].detach().cpu().numpy())
     plt.savefig(f"res_{epoch}.png")
