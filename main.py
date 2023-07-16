@@ -43,8 +43,8 @@ G_model = Generator().to(DEVICE)
 D_model = Discriminator().to(DEVICE)
 G_model.apply(init_weights)
 D_model.apply(init_weights)
-D_opt = torch.optim.Adam(D_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
-G_opt = torch.optim.Adam(G_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
+D_opt = torch.optim.SGD(D_model.parameters(), lr=0.0002)
+G_opt = torch.optim.SGD(G_model.parameters(), lr=0.0002)
 
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
