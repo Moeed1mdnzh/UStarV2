@@ -9,16 +9,15 @@ class Upsample(torch.nn.Module):
         self.act_1 = torch.nn.CELU(0.1)
         
         self.conv_block_2 = torch.nn.ConvTranspose2d(2048, 512, (4, 4), stride=(2, 2), padding=1)
-        self.bn_2 = PixelNorm()
-        # torch.nn.BatchNorm2d(512)  decrease 
+        self.bn_2 = torch.nn.BatchNorm2d(512) 
         self.act_2 = torch.nn.CELU(0.1)
         
         self.conv_block_3 = torch.nn.ConvTranspose2d(1024, 256, (4, 4), stride=(2, 2), padding=1)
-        self.bn_3 = PixelNorm() 
+        self.bn_3 = torch.nn.BatchNorm2d(256)
         self.act_3 = torch.nn.CELU(0.1)
         
         self.conv_block_4 = torch.nn.ConvTranspose2d(512, 128, (4, 4), stride=(2, 2), padding=1)
-        self.bn_4 = PixelNorm()
+        self.bn_4 = torch.nn.BatchNorm2d(128)
         self.act_4 = torch.nn.CELU(0.1)
         
         self.conv_block_5 = torch.nn.ConvTranspose2d(256, 3, (4, 4), stride=(2, 2), padding=1)
