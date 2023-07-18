@@ -46,16 +46,30 @@ D_model.apply(init_weights)
 D_opt = torch.optim.Adam(D_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 G_opt = torch.optim.Adam(G_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
+# def d_train(x, labels, generator, discriminator):
+#     discriminator.zero_grad()
+#     d_labels_real = torch.ones(x.size(0), 1, device=DEVICE) - 0.1
+#     d_proba_real = discriminator(labels)
+#     d_loss_real = DISC_LOSS(d_proba_real, d_labels_real)
+#     g_output = generator(x)
+#     d_proba_fake = discriminator(g_output)
+#     d_labels_fake = torch.zeros(x.size(0), 1, device=DEVICE)
+#     d_loss_fake = DISC_LOSS(d_proba_fake, d_labels_fake)
+#     d_loss = d_loss_real + d_loss_fake
+#     d_loss = d_loss * 0.5
+#     d_loss.backward()
+#     D_opt.step()
+#     return d_loss.data.item()
+
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
     d_labels_real = torch.ones(x.size(0), 1, device=DEVICE) - 0.1
-    d_proba_real = discriminator(labels)
-    d_loss_real = DISC_LOSS(d_proba_real, d_labels_real)
-    g_output = generator(x)
-    d_proba_fake = discriminator(g_output)
     d_labels_fake = torch.zeros(x.size(0), 1, device=DEVICE)
-    d_loss_fake = DISC_LOSS(d_proba_fake, d_labels_fake)
-    d_loss = d_loss_real + d_loss_fake
+    d_labels = torch.cat([d_labels_real, d_labels_fake], dim=0)
+    g_output = generator(x)
+    d_data = torch.cat([labels, g_output], dim=0)
+    d_proba_real = discriminator(d_data)
+    d_loss = DISC_LOSS(d_proba_real, d_labels)
     d_loss = d_loss * 0.5
     d_loss.backward()
     D_opt.step()
