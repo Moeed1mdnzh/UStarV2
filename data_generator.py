@@ -23,11 +23,11 @@ for i in range(3):
     clone = gray.copy()
     clone = cv2.cvtColor(clone, cv2.COLOR_GRAY2BGR)
     clone[:, :, i] = gray
-    for j in range(0, 186, 24):
+    for j in range(0, 186, 22):
         clone[:, :, channels[0]] = j
-        for k in range(0, 186, 24):
+        for k in range(0, 186, 22):
             clone[:, :, channels[1]] = k
-            for l in range(1, 72, 24):
+            for l in range(1, 72, 22):
                 bg = np.ones(image.shape, np.uint8) * l 
                 sample_1 = cv2.add(clone, bg)
                 sample_1[bins==0] = 0
@@ -47,7 +47,7 @@ for i in range(3):
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
                         index_2 += 1
-            for m in range(1, 151, 24):               
+            for m in range(1, 151, 22):               
                 bg = np.ones(image.shape, np.uint8) * m
                 sample_2 = cv2.subtract(clone, bg)
                 sample_2[bins==0] = 0

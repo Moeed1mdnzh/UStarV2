@@ -2,7 +2,7 @@ import torch
 
 SHIFT_LIMIT = 0.4
 
-BATCH_SIZE = 84
+BATCH_SIZE = 64
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
