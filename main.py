@@ -68,8 +68,8 @@ def d_train(x, labels, generator, discriminator):
 #     d_labels = torch.cat([d_labels_real, d_labels_fake], dim=0)
 #     g_output = generator(x)
 #     d_data = torch.cat([labels, g_output], dim=0)
-#     d_proba_real = discriminator(d_data)
-#     d_loss = DISC_LOSS(d_proba_real, d_labels)
+#     d_proba = discriminator(d_data)
+#     d_loss = DISC_LOSS(d_proba, d_labels)
 #     d_loss = d_loss * 0.5
 #     d_loss.backward()
 #     D_opt.step()
