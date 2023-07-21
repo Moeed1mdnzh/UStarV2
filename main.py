@@ -44,8 +44,8 @@ G_model = Generator().to(DEVICE)
 D_model = Discriminator().to(DEVICE)
 G_model.apply(init_weights)
 D_model.apply(init_weights)
-D_opt = torch.optim.Adam(D_model.parameters(), lr=0.002, betas=(0.5, 0.999))
-G_opt = torch.optim.Adam(G_model.parameters(), lr=0.002, betas=(0.5, 0.999))
+D_opt = torch.optim.Adam(D_model.parameters(), lr=0.00002, betas=(0.5, 0.999))
+G_opt = torch.optim.Adam(G_model.parameters(), lr=0.00002, betas=(0.5, 0.999))
 
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
@@ -102,21 +102,21 @@ for epoch in range(1, N_EPOCHS):
         sample_label = sample_label.permute(1, 2, 0)
         sample_label = (sample_label+1)/2.0
     samples = quick_inference(G_model, sample_image)
-    fig = plt.figure(figsize=(1, 3))
-    plt.subplot(3, 1, 1)
+    fig = plt.figure(figsize=(3, 1))
+    plt.subplot(1, 3, 1)
     plt.imshow(samples[1].detach().cpu().numpy())
     plt.axis("off")
     plt.title("input")
     
-    plt.subplot(3, 1, 2)
+    plt.subplot(1, 3, 2)
     plt.imshow(sample_label.detach().cpu().numpy())
     plt.axis("off")
     plt.title("target")
     
-    plt.subplot(3, 1, 3)
+    plt.subplot(1, 3, 3)
     plt.imshow(samples[0].detach().cpu().numpy())
     plt.axis("off")
     plt.title("pred")
     
-    plt.savefig("prediction.png", dpi=fig.dpi)
+    plt.savefig(f"prediction_{epoch}.png", dpi=fig.dpi)
     
