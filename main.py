@@ -99,6 +99,8 @@ for epoch in range(1, N_EPOCHS):
     if epoch == 1:
         sample_image = X_batch[0]
         sample_label = y_batch[0]
+        sample_label = sample_label.permute(1, 2, 0)
+        sample_label = (sample_label+1)/2.0
     samples = quick_inference(G_model, sample_image)
     fig = plt.figure(figsize=(1, 3))
     plt.subplot(3, 1, 1)
