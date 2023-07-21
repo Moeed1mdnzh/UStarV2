@@ -13,3 +13,4 @@ GEN_LOSS_2 = torch.nn.L1Loss()
 N_EPOCHS = 40
 
 
+

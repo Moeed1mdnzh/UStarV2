@@ -2,6 +2,7 @@ import os
 import cv2
 import time
 import torch
+import progressbar
 import numpy as np
 import torchvision
 from configs import *
@@ -43,8 +44,8 @@ G_model = Generator().to(DEVICE)
 D_model = Discriminator().to(DEVICE)
 G_model.apply(init_weights)
 D_model.apply(init_weights)
-D_opt = torch.optim.SGD(D_model.parameters(), lr=0.002)
-G_opt = torch.optim.Adam(G_model.parameters(), lr=0.002, betas=(0.5, 0.999))
+D_opt = torch.optim.Adam(D_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
+G_opt = torch.optim.Adam(G_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
@@ -76,27 +77,48 @@ def g_train(x, labels, generator, discriminator):
     G_opt.step()
     return g_loss.data.item()
 
-def create_samples(g_model, input_z):
-    g_output = g_model(input_z)
-    image = g_output[0].permute(1, 2, 0)
+def quick_inference(g_model, input_z):
+    g_output = g_model(input_z.unsqueeze(dim=0))
+    image = g_output[0].squeeze().permute(1, 2, 0)
     input_z = input_z[0].permute(1, 2, 0)
     return (image+1)/2.0, (input_z+1)/2.0
 
+widgets = [progressbar.Percentage(), " ", progressbar.GranularBar(markers=" ░▒▓█", left='', right='|'),
+           " ", progressbar.Timer(), " ", progressbar.ETA(), " ",
+           progressbar.Variable("g_loss"), " ", progressbar.Variable("d_loss")]
 
 for epoch in range(1, N_EPOCHS):
     d_losses, g_losses = 0, 0
-    print(f"Training {epoch}/{N_EPOCHS}... ")
-    start_time = datetime.now() 
-    for X_batch, y_batch in dataset:
+    print(f"Training {epoch}/{N_EPOCHS}")
+    pbar = progressbar.ProgressBar(max_value=len(dataset), widgets=widgets)
+    for i, (X_batch, y_batch) in enumerate(dataset):
         X_batch, y_batch = X_batch.to(DEVICE), y_batch.to(DEVICE)
         d_loss = d_train(X_batch, y_batch, G_model, D_model)
         d_losses += d_loss
-        g_losses += g_train(X_batch, y_batch, G_model, D_model)
+        g_loss = g_train(X_batch, y_batch, G_model, D_model)
+        g_losses += g_loss
+        pbar.update(i, g_loss=g_loss, d_loss=d_loss)
     print(f"Epoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
-    time_elapsed = datetime.now() - start_time 
-    print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
-    samples = create_samples(G_model, X_batch)
-    plt.imshow(samples[0].detach().cpu().numpy())
-    plt.savefig(f"res_{epoch}.png")
+    pbar.finish()
+    if epoch == 1:
+        sample_image = X_batch[0]
+        sample_label = y_batch[0]
+    samples = quick_inference(G_model, sample_image)
+    fig = plt.figure(figsize=(1, 3))
+    plt.subplot(3, 1, 1)
     plt.imshow(samples[1].detach().cpu().numpy())
-    plt.savefig(f"input_{epoch}.png")
+    plt.axis("off")
+    plt.title("input")
+    
+    plt.subplot(3, 1, 2)
+    plt.imshow(sample_label.detach().cpu().numpy())
+    plt.axis("off")
+    plt.title("target")
+    
+    plt.subplot(3, 1, 3)
+    plt.imshow(samples[0].detach().cpu().numpy())
+    plt.axis("off")
+    plt.title("pred")
+    
+    plt.savefig("prediction.png", dpi=fig.dpi)
+    
