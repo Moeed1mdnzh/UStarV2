@@ -79,8 +79,8 @@ def g_train(x, labels, generator, discriminator):
 
 def quick_inference(g_model, input_z):
     g_output = g_model(input_z.unsqueeze(dim=0))
-    image = g_output[0].squeeze().permute(1, 2, 0)
-    input_z = input_z[0].permute(1, 2, 0)
+    image = g_output.squeeze().permute(1, 2, 0)
+    input_z = input_z.permute(1, 2, 0)
     return (image+1)/2.0, (input_z+1)/2.0
 
 for epoch in range(1, N_EPOCHS):
