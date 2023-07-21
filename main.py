@@ -94,8 +94,8 @@ for epoch in range(1, N_EPOCHS):
         g_loss = g_train(X_batch, y_batch, G_model, D_model)
         g_losses += g_loss
         pbar.update(i, g_loss=g_loss, d_loss=d_loss)
-    print(f"Epoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
     pbar.finish()
+    print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
     if epoch == 1:
         sample_image = X_batch[0]
         sample_label = y_batch[0]
