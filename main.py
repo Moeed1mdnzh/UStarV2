@@ -83,10 +83,6 @@ def quick_inference(g_model, input_z):
     input_z = input_z[0].permute(1, 2, 0)
     return (image+1)/2.0, (input_z+1)/2.0
 
-widgets = [progressbar.Percentage(), " ", progressbar.GranularBar(markers=" ░▒▓█", left='', right='|'),
-           " ", progressbar.Timer(), " ", progressbar.ETA(), " ",
-           progressbar.Variable("g_loss"), " ", progressbar.Variable("d_loss")]
-
 for epoch in range(1, N_EPOCHS):
     d_losses, g_losses = 0, 0
     print(f"Training {epoch}/{N_EPOCHS}")

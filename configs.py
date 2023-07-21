@@ -1,4 +1,5 @@
 import torch
+import progressbar
 
 SHIFT_LIMIT = 0.4
 
@@ -12,5 +13,8 @@ GEN_LOSS_2 = torch.nn.L1Loss()
 
 N_EPOCHS = 40
 
+widgets = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', right='|'),
+           " ", progressbar.Timer(), " ", progressbar.ETA(), " ",
+           progressbar.Variable("g_loss"), " ", progressbar.Variable("d_loss")]
 
 
