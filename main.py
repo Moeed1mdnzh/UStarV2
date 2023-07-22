@@ -99,24 +99,23 @@ for epoch in range(1, N_EPOCHS):
     if epoch == 1:
         sample_image = X_batch[0]
         sample_label = y_batch[0]
-        sample_label = sample_label.permute(1, 2, 0)
-        sample_label = (sample_label+1)/2.0
+        sample_label = (sample_label.permute(1, 2, 0)+1)/2.0
     samples = quick_inference(G_model, sample_image)
     fig = plt.figure(figsize=(3, 1))
     plt.subplot(1, 3, 1)
     plt.imshow(samples[1].detach().cpu().numpy())
     plt.axis("off")
-    plt.title("input")
+    plt.title("input", fontsize=10, pad="2.0")
     
     plt.subplot(1, 3, 2)
     plt.imshow(sample_label.detach().cpu().numpy())
     plt.axis("off")
-    plt.title("target")
+    plt.title("target", fontsize=10, pad="2.0")
     
     plt.subplot(1, 3, 3)
     plt.imshow(samples[0].detach().cpu().numpy())
     plt.axis("off")
-    plt.title("pred")
+    plt.title("pred", fontsize=10, pad="2.0")
     
-    plt.savefig(f"prediction_{epoch}.png", dpi=fig.dpi)
+    plt.savefig(f"prediction_{epoch}.png", dpi=200)
     
