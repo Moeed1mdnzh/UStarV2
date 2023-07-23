@@ -1,5 +1,4 @@
 import torch 
-from model.generator.blocks.pixelnorm import PixelNorm
 
 class Downsample(torch.nn.Module):
     def __init__(self):

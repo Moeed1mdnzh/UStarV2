@@ -9,7 +9,7 @@ from configs import SHIFT_LIMIT, widgets_2
 os.system("mkdir " + os.sep.join(["dataset", "images"]))
 os.system("mkdir " + os.sep.join(["dataset", "labels"]))
 
-image = cv2.imread(os.sep.join(["dataset", "data2.jpg"]))
+image = cv2.imread(os.sep.join(["dataset", "data3.jpg"]))
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 gray[gray==26] = 0
 thresh, bins = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -44,7 +44,7 @@ for i in range(3):
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "images", f"sample_{index}.jpg"]), img)
                         index += 1
-                        pbar.update(index)
+                        pbar.update(index,ImageNumber=index)
                 for cluster in raw_label:
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
@@ -65,7 +65,7 @@ for i in range(3):
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "images", f"sample_{index}.jpg"]), img)
                         index += 1
-                        pbar.update(index)
+                        pbar.update(index,ImageNumber=index)
                 for cluster in raw_label:
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)

@@ -18,6 +18,6 @@ widgets = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', right
            progressbar.Variable("d_loss")]
 
 widgets_2 = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', right='|'),
-           " ", progressbar.ETA(), " ", progressbar.Variable("Image Number: ")]
+           " ", progressbar.ETA(), " ", progressbar.Variable("ImageNumber")]
 
 
