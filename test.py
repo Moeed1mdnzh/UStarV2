@@ -36,6 +36,13 @@ class ImageDataset(torch.utils.data.Dataset):
 
 im_paths = list(paths.list_images(os.sep.join(["dataset", "images"])))
 label_paths = list(paths.list_images(os.sep.join(["dataset", "labels"])))
+print(im_paths)
+print("""
+      
+      
+      
+      """)
+print(label_paths)
 
 dataset = ImageDataset(im_paths, label_paths, tfs)
 dataset = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -61,7 +68,6 @@ for epoch in range(1, N_EPOCHS):
     for i, (X_batch, y_batch) in enumerate(dataset):
         break
     print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
-    print(dir(dataset))
     if epoch == 1:
         sample_image = X_batch[0].permute(1, 2, 0)
         sample_label = y_batch[0]
