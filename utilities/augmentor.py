@@ -49,15 +49,3 @@ class Augmentor:
     
     
     
-# if __name__ == "__main__":
-#     image = cv2.imread("test.jpg")
-#     augmentor = Augmentor(image, 0.4)
-#     raw = augmentor.augment()
-#     images = []
-#     for r in raw:
-#         for img in r:
-#             images.append(img)
-#     for img in images:
-#         cv2.imshow("", img)
-#         cv2.waitKey(0)
-#     print(len(images))

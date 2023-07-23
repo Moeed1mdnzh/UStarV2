@@ -1,22 +1,23 @@
 import os 
 import cv2 
+import progressbar
 import numpy as np
-from configs import *
 from datetime import datetime
 from utilities.augmentor import Augmentor
+from configs import SHIFT_LIMIT, widgets_2
 
 os.system("mkdir " + os.sep.join(["dataset", "images"]))
 os.system("mkdir " + os.sep.join(["dataset", "labels"]))
 
-image = cv2.imread(os.sep.join(["dataset", "data.jpg"]))
+image = cv2.imread(os.sep.join(["dataset", "data2.jpg"]))
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 gray[gray==26] = 0
 thresh, bins = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 kernel = np.ones((1, 1), np.uint8)
 bins = cv2.morphologyEx(bins, cv2.MORPH_CLOSE, kernel)
-index = 0
-augmentor = Augmentor(SHIFT_LIMIT)
-start_time = datetime.now() 
+index = 0 # For testing
+augmentor = Augmentor(SHIFT_LIMIT) 
+pbar = progressbar.ProgressBar(max_value=3*8*8*126, widgets=widgets_2)
 for i in range(3):
     channels = [0, 1, 2]
     channels.remove(i)
@@ -43,6 +44,7 @@ for i in range(3):
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "images", f"sample_{index}.jpg"]), img)
                         index += 1
+                        pbar.update(index)
                 for cluster in raw_label:
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
@@ -63,11 +65,12 @@ for i in range(3):
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "images", f"sample_{index}.jpg"]), img)
                         index += 1
+                        pbar.update(index)
                 for cluster in raw_label:
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
                         index_2 += 1
-time_elapsed = datetime.now() - start_time 
-print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
-print(index)
+pbar.finish()
+print(f"Total number of generated images: {index+index_2}")
+
     
