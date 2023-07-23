@@ -42,12 +42,12 @@ G_model = Generator().to(DEVICE)
 D_model = Discriminator().to(DEVICE)
 G_model.apply(init_weights)
 D_model.apply(init_weights)
-D_opt = torch.optim.Adam(D_model.parameters(), lr=0.00002, betas=(0.5, 0.999))
-G_opt = torch.optim.Adam(G_model.parameters(), lr=0.00002, betas=(0.5, 0.999))
+D_opt = torch.optim.Adam(D_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
+G_opt = torch.optim.Adam(G_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
-    d_labels_real = torch.ones(x.size(0), 1, device=DEVICE) - 0.1
+    d_labels_real = torch.ones(x.size(0), 1, device=DEVICE)  - 0.1
     d_proba_real = discriminator(labels)
     d_loss_real = DISC_LOSS(d_proba_real, d_labels_real)
     g_output = generator(x)
