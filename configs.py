@@ -20,4 +20,6 @@ widgets = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', right
 widgets_2 = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', right='|'),
            " ", progressbar.ETA(), " ", progressbar.Variable("ImageNumber")]
 
-DATA_NAME = "data2.jpg"
+DATA_NAME = "data.jpg"
+
+DATA_CONTROL = 18
