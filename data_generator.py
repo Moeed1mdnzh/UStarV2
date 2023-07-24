@@ -4,17 +4,20 @@ import progressbar
 import numpy as np
 from datetime import datetime
 from utilities.augmentor import Augmentor
-from configs import SHIFT_LIMIT, widgets_2
+from configs import SHIFT_LIMIT, widgets_2, DATA_NAME
 
 os.system("mkdir " + os.sep.join(["dataset", "images"]))
 os.system("mkdir " + os.sep.join(["dataset", "labels"]))
 
-image = cv2.imread(os.sep.join(["dataset", "data3.jpg"]))
+image = cv2.imread(os.sep.join(["dataset", DATA_NAME]))
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 gray[gray==26] = 0
 thresh, bins = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 kernel = np.ones((1, 1), np.uint8)
 bins = cv2.morphologyEx(bins, cv2.MORPH_CLOSE, kernel)
+kernel = np.ones((5, 5), np.uint8)
+dilated = cv2.dilate(bins, kernel)
+eroded = cv2.erode(dilated, kernel)
 index = 0 # For testing
 augmentor = Augmentor(SHIFT_LIMIT) 
 pbar = progressbar.ProgressBar(max_value=3*8*8*126, widgets=widgets_2)
@@ -33,10 +36,10 @@ for i in range(3):
                 sample_1 = cv2.add(clone, bg)
                 sample_1[bins==0] = 0
                 bg_1 = np.zeros(image.shape, np.uint8)
-                mean = (np.uint8(np.mean(sample_1[:, :, 0][bins!=0])),
-                        np.uint8(np.mean(sample_1[:, :, 1][bins!=0])),
-                        np.uint8(np.mean(sample_1[:, :, 2][bins!=0])))
-                bg_1[bins==255] = mean
+                mean = (np.uint8(np.mean(sample_1[:, :, 0][eroded!=0])),
+                        np.uint8(np.mean(sample_1[:, :, 1][eroded!=0])),
+                        np.uint8(np.mean(sample_1[:, :, 2][eroded!=0])))
+                bg_1[eroded==255] = mean
                 raw_sample = augmentor.augment(bg_1)
                 raw_label = augmentor.augment(sample_1)
                 index_2 = index
@@ -54,10 +57,10 @@ for i in range(3):
                 sample_2 = cv2.subtract(clone, bg)
                 sample_2[bins==0] = 0
                 bg_2 = np.zeros(image.shape, np.uint8)
-                mean = (np.uint8(np.mean(sample_2[:, :, 0][bins!=0])),
-                        np.uint8(np.mean(sample_2[:, :, 1][bins!=0])),
-                        np.uint8(np.mean(sample_2[:, :, 2][bins!=0])))
-                bg_2[bins==255] = mean
+                mean = (np.uint8(np.mean(sample_2[:, :, 0][eroded!=0])),
+                        np.uint8(np.mean(sample_2[:, :, 1][eroded!=0])),
+                        np.uint8(np.mean(sample_2[:, :, 2][eroded!=0])))
+                bg_2[eroded==255] = mean
                 raw_sample = augmentor.augment(bg_2)
                 raw_label = augmentor.augment(sample_2)
                 index_2 = index
