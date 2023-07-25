@@ -14,6 +14,7 @@ from model.generator.generator import Generator
 from model.discriminator.discriminator import Discriminator
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+os.system("mkdir weights")
 
 tfs = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
                                     torchvision.transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
@@ -116,6 +117,6 @@ for epoch in range(1, N_EPOCHS):
     plt.title("pred", fontsize=10, pad="2.0")
     
     plt.savefig(f"prediction_{epoch}.png", dpi=200)
-    torch.save(G_model.state_dict(), f"generator_weights_{epoch}.pt")
-    torch.save(D_model.state_dict(), f"discriminator_weights_{epoch}.pt")
+    torch.save(G_model.state_dict(), os.sep.join(["weights", f"generator_weights_{epoch}.pt"]))
+    torch.save(D_model.state_dict(), os.sep.join(["weights", f"discriminator_weights_{epoch}.pt"]))
     
