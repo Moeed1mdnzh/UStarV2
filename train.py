@@ -117,6 +117,16 @@ for epoch in range(1, N_EPOCHS):
     plt.title("pred", fontsize=10, pad="2.0")
     
     plt.savefig(f"prediction_{epoch}.png", dpi=200)
-    torch.save(G_model.state_dict(), os.sep.join(["weights", f"generator_weights_{epoch}.pt"]))
-    torch.save(D_model.state_dict(), os.sep.join(["weights", f"discriminator_weights_{epoch}.pt"]))
+    state_G = {
+        "epoch": epoch,
+        "state_dict": G_model.state_dict(),
+        "optimizer": G_opt.state_dict()
+    }
+    state_D = {
+        "epoch": epoch,
+        "state_dict": D_model.state_dict(),
+        "optimizer": D_opt.state_dict()
+    }
+    torch.save(state_G, os.sep.join(["weights", f"generator_weights_{epoch}.pt"]))
+    torch.save(state_D, os.sep.join(["weights", f"discriminator_weights_{epoch}.pt"]))
     
