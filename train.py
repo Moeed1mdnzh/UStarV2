@@ -5,6 +5,7 @@ import torch
 import progressbar
 import numpy as np
 import torchvision
+from metrics.fid import *
 from configs import *
 from imutils import paths
 from datetime import datetime
@@ -30,6 +31,7 @@ class ImageDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         image = cv2.imread(self.im_paths[index])
         label = cv2.imread(self.im_paths[index].replace("images", "labels").replace("sample", "label"))
+        label = cv2.GaussianBlur(label, (5, 5), 7)
         image = self.transform(image)
         label = self.transform(label)
         return image, label
@@ -43,8 +45,12 @@ G_model = Generator().to(DEVICE)
 D_model = Discriminator().to(DEVICE)
 G_model.apply(init_weights)
 D_model.apply(init_weights)
-D_opt = torch.optim.Adam(D_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
-G_opt = torch.optim.Adam(G_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
+D_opt = torch.optim.Adam(D_model.parameters(), lr=0.002, betas=(0.5, 0.999))
+G_opt = torch.optim.Adam(G_model.parameters(), lr=0.002, betas=(0.5, 0.999))
+if FID:
+    inceptionv3 = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
+    inceptionv3.eval()
+    Fid = FID(inceptionv3)
 
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
@@ -94,7 +100,8 @@ for epoch in range(1, N_EPOCHS):
         g_losses += g_loss
         pbar.update(i, g_loss=g_loss, d_loss=d_loss)
     pbar.finish()
-    print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
+    fid_score = Fid.calculate_fid((G_model(X_batch), y_batch))
+    print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}  fid score {fid_score}")
     if epoch == 1:
         sample_image = X_batch[0]
         sample_label = y_batch[0]
