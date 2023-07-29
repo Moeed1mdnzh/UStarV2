@@ -2,18 +2,21 @@ import os
 import cv2
 import time
 import torch
+import warnings
 import progressbar
 import numpy as np
 import torchvision
-from metrics.fid import *
 from configs import *
 from imutils import paths
+from metrics.fid import *
 from datetime import datetime
 import matplotlib.pyplot as plt
 from model.weight_init import init_weights
 from model.generator.generator import Generator
 from model.discriminator.discriminator import Discriminator
 
+
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 os.system("mkdir weights")
 
