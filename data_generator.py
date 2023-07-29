@@ -21,7 +21,7 @@ eroded = cv2.erode(dilated, kernel)
 index = 0 # For testing
 augmentor = Augmentor(SHIFT_LIMIT) 
 max_val = len(list(range(0, 186, DATA_CONTROL)))**2
-max_val = 3 * max_val * ((len(list(range(1, 72, DATA_CONTROL)))*28)+(len(list(range(1, 151, DATA_CONTROL)))*28))
+max_val = (3 * max_val * ((len(list(range(1, 72, DATA_CONTROL)))*28)+(len(list(range(1, 151, DATA_CONTROL)))*28)))+813
 pbar = progressbar.ProgressBar(max_value=max_val, widgets=widgets_2)
 for i in range(3):
     channels = [0, 1, 2]
@@ -77,7 +77,6 @@ for i in range(3):
                         index_2 += 1
 
 image = cv2.imread(os.sep.join(["dataset", "org.png"]))
-image = cv2.resize(image, (192, 192))
 clone = image.copy()
 blurred = cv2.GaussianBlur(image, (5, 5), 0)
 gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
@@ -105,9 +104,8 @@ for i in range(int(255 / SZ)):
                 res[res < 0] = 0
                 res[res > 255] = 255
                 res = res.astype("uint8")
-                cv2.imwrite(os.sep.join(["dataset", "images", f"img_{index}.jpg"]), clone)
-                cv2.imwrite(os.sep.join(["dataset", "labels", f"img_{index}.jpg"]), res)
-                print(f"[INFO]: Created image {index}/813")
+                cv2.imwrite(os.sep.join(["dataset", "images", f"img_{index}.jpg"]), cv2.resize(clone, (192, 192)))
+                cv2.imwrite(os.sep.join(["dataset", "labels", f"img_{index}.jpg"]), cv2.resize(res, (192, 192)))
                 index += 1
                 index_2 += 1
                 pbar.update(index, ImageNumber=index)

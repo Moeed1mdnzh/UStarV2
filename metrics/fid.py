@@ -10,7 +10,7 @@ class Identity(torch.nn.Module):
     def forward(self, x):
         return x
 
-class FID:
+class FID_Score:
     def __init__(self, inceptionv3):
         inceptionv3.fc = Identity()
         self.inceptionv3 = inceptionv3
@@ -31,7 +31,7 @@ class FID:
     
     def  calculate_fid(self, images):
         images_1, images_2 = self._predict_features(images[0], images[1])
-        images_1, images_2 = images_1.detach().numpy() ,images_2.detach().numpy()
+        images_1, images_2 = images_1.detach().cpu().numpy() ,images_2.detach().cpu().numpy()
         mu1, sigma1 = images_1.mean(axis=0), np.cov(images_1, rowvar=False)
         mu2, sigma2 = images_2.mean(axis=0), np.cov(images_2, rowvar=False)
 
