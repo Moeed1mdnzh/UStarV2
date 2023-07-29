@@ -48,7 +48,7 @@ D_model.apply(init_weights)
 D_opt = torch.optim.Adam(D_model.parameters(), lr=0.002, betas=(0.5, 0.999))
 G_opt = torch.optim.Adam(G_model.parameters(), lr=0.002, betas=(0.5, 0.999))
 if FID:
-    inceptionv3 = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
+    inceptionv3 = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True).to(DEVICE)
     inceptionv3.eval()
     Fid = FID_Score(inceptionv3)
 
@@ -100,7 +100,7 @@ for epoch in range(1, N_EPOCHS):
         g_losses += g_loss
         pbar.update(i, g_loss=g_loss, d_loss=d_loss)
     pbar.finish()
-    fid_score = Fid.calculate_fid((G_model(X_batch).to(DEVICE), y_batch).to(DEVICE))
+    fid_score = Fid.calculate_fid((G_model(X_batch).to(DEVICE), y_batch.to(DEVICE)))
     print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}  fid score {fid_score}")
     if epoch == 1:
         sample_image = X_batch[0]
