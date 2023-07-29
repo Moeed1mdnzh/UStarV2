@@ -109,6 +109,7 @@ for i in range(int(255 / SZ)):
                 cv2.imwrite(os.sep.join(["dataset", "labels", f"img_{index}.jpg"]), res)
                 print(f"[INFO]: Created image {index}/813")
                 index += 1
+                index_2 += 1
                 pbar.update(index, ImageNumber=index)
             r += SZ
         g += SZ
