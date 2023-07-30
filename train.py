@@ -109,7 +109,7 @@ for epoch in range(1, N_EPOCHS):
     if FID:
         fid_score = Fid.calculate_fid((G_model(X_batch).to(DEVICE), y_batch.to(DEVICE)))
         print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}  fid score {fid_score}")
-    print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
+    else: print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
     if epoch == 1:
         sample_image = X_batch[0]
         sample_label = y_batch[0]
