@@ -49,7 +49,7 @@ for i in range(3):
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "images", f"sample_{index}.jpg"]), img)
                         index += 1
-                        pbar.update(index, ImageNumber=index)
+                        pbar.update(index,ImageNumber=index)
                 for cluster in raw_label:
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
@@ -70,10 +70,12 @@ for i in range(3):
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "images", f"sample_{index}.jpg"]), img)
                         index += 1
-                        pbar.update(index, ImageNumber=index)
+                        pbar.update(index,ImageNumber=index)
                 for cluster in raw_label:
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
                         index_2 += 1
 pbar.finish()
 print(f"Total number of generated images: {index+index_2}")
+
+    
