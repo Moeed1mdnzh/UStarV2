@@ -1,6 +1,7 @@
 import os
 import cv2
 import time
+import json
 import torch
 import warnings
 import progressbar
@@ -18,7 +19,6 @@ from model.discriminator.discriminator import Discriminator
 
 def warn(*args, **kwargs):
     pass
-import warnings
 warnings.warn = warn 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 os.system("mkdir weights")
@@ -37,7 +37,7 @@ class ImageDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         image = cv2.imread(self.im_paths[index])
         label = cv2.imread(self.im_paths[index].replace("images", "labels").replace("sample", "label"))
-        label = cv2.GaussianBlur(label, (5, 5), 7)
+        label = cv2.GaussianBlur(label, (3, 3), 5)
         image = self.transform(image)
         label = self.transform(label)
         return image, label
@@ -94,6 +94,7 @@ def quick_inference(g_model, input_z):
     input_z = input_z.permute(1, 2, 0)
     return (image+1)/2.0, (input_z+1)/2.0
 
+stats = {}
 for epoch in range(1, N_EPOCHS):
     d_losses, g_losses = 0, 0
     print(f"Training {epoch}/{N_EPOCHS}")
@@ -106,9 +107,11 @@ for epoch in range(1, N_EPOCHS):
         g_losses += g_loss
         pbar.update(i, g_loss=g_loss, d_loss=d_loss)
     pbar.finish()
+    stat = [g_loss, d_loss]
     if FID:
         fid_score = Fid.calculate_fid((G_model(X_batch).to(DEVICE), y_batch.to(DEVICE)))
         print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}  fid score {fid_score}")
+        stat.append(fid_score)
     else: print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
     if epoch == 1:
         sample_image = X_batch[0]
@@ -142,6 +145,9 @@ for epoch in range(1, N_EPOCHS):
         "state_dict": D_model.state_dict(),
         "optimizer": D_opt.state_dict()
     }
+    stats[epoch] = stat
     torch.save(state_G, os.sep.join(["weights", f"generator_weights_{epoch}.pt"]))
     torch.save(state_D, os.sep.join(["weights", f"discriminator_weights_{epoch}.pt"]))
+    with open("model_stats.json", "a", encoding="utf-8") as f:
+        json.dump(stats, f, ensure_ascii=False, indent=4)
     
