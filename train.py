@@ -148,6 +148,6 @@ for epoch in range(1, N_EPOCHS):
     stats[epoch] = stat
     torch.save(state_G, os.sep.join(["weights", f"generator_weights_{epoch}.pt"]))
     torch.save(state_D, os.sep.join(["weights", f"discriminator_weights_{epoch}.pt"]))
-    with open("model_stats.json", "a", encoding="utf-8") as f:
+    with open("model_stats.json", "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=4)
     
