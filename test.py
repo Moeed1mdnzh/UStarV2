@@ -11,8 +11,7 @@ from model.generator.generator import Generator
 
 
 class Inference:
-    def __init__(self, image_path, device="cpu"):
-        self._image_path = image_path
+    def __init__(self, device="cpu"):
         self._device = device
         self._tfs = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
                                                     torchvision.transforms.Normalize(mean=(0.5, 0.5, 0.5),
@@ -25,7 +24,7 @@ class Inference:
 
     def _prep(self, image):
         rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        return self._tfs(rgb)
+        return self._tfs(image)
 
     def _predict(self, image):
         pred = self._g_model(image.unsqueeze(0)).squeeze().permute(1, 2, 0)
@@ -36,7 +35,7 @@ class Inference:
 
     def initialize(self):
         G_state = torch.load(os.sep.join(
-            ["pre_trained_models", "generator_weights_8.pt"]), map_location=torch.device(self._device))
+            ["pre_trained_models", "generator_weights_7.pt"]), map_location=torch.device(self._device))
         self._g_model.load_state_dict(G_state["state_dict"])
         self._g_opt.load_state_dict(G_state["optimizer"])
         self._esrgan.load_state_dict(torch.load(os.sep.join(
@@ -44,8 +43,7 @@ class Inference:
         self._esrgan.eval()
         self._esrgan = self._esrgan
 
-    def generate(self):
-        image = cv2.imread(self._image_path)
+    def generate(self, image):
         prep = self._prep(image)
         pred = self._predict(prep)
         img = pred * 1.0 / 255
@@ -61,14 +59,15 @@ class Inference:
         return output
 
 # For test
-# if __name__ == "__main__":
-#     inference = Inference(os.sep.join(["previews", "teststar5.jpg"]))
-#     inference.initialize()
-#     import time
-#     pre = time.time()
-#     image = inference.generate()
-#     print(time.time()-pre)
-#     cv2.imwrite("result.png", image)
-#     image = cv2.imread("result.png")
-#     cv2.imshow("", image)
-#     cv2.waitKey(0)
+if __name__ == "__main__":
+    inference = Inference()
+    inference.initialize()
+    import time
+    pre = time.time()
+    image = cv2.imread(os.sep.join(["previews", "teststar2.jpg"]))
+    image = inference.generate(image)
+    print(time.time()-pre)
+    cv2.imwrite("result.png", image)
+    image = cv2.imread("result.png")
+    cv2.imshow("", image)
+    cv2.waitKey(0)
