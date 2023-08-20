@@ -19,12 +19,15 @@ from model.discriminator.discriminator import Discriminator
 
 def warn(*args, **kwargs):
     pass
-warnings.warn = warn 
+
+
+warnings.warn = warn
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 os.system("mkdir weights")
 
 tfs = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
-                                    torchvision.transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+                                      torchvision.transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+
 
 class ImageDataset(torch.utils.data.Dataset):
     def __init__(self, im_paths, transform):
@@ -36,16 +39,18 @@ class ImageDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         image = cv2.imread(self.im_paths[index])
-        label = cv2.imread(self.im_paths[index].replace("images", "labels").replace("sample", "label"))
-        label = cv2.GaussianBlur(label, (3, 3), 5)
+        label = cv2.imread(self.im_paths[index].replace(
+            "images", "labels").replace("sample", "label"))
         image = self.transform(image)
         label = self.transform(label)
         return image, label
 
+
 im_paths = list(paths.list_images(os.sep.join(["dataset", "images"])))
 
 dataset = ImageDataset(im_paths, tfs)
-dataset = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+dataset = torch.utils.data.DataLoader(
+    dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 G_model = Generator().to(DEVICE)
 D_model = Discriminator().to(DEVICE)
@@ -54,13 +59,15 @@ D_model.apply(init_weights)
 D_opt = torch.optim.Adam(D_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 G_opt = torch.optim.Adam(G_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 if FID:
-    inceptionv3 = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True).to(DEVICE)
+    inceptionv3 = torch.hub.load(
+        'pytorch/vision:v0.10.0', 'inception_v3', pretrained=True).to(DEVICE)
     inceptionv3.eval()
     Fid = FID_Score(inceptionv3)
 
+
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
-    d_labels_real = torch.ones(x.size(0), 1, device=DEVICE)  - 0.1
+    d_labels_real = torch.ones(x.size(0), 1, device=DEVICE) - 0.1
     d_proba_real = discriminator(labels)
     d_loss_real = DISC_LOSS(d_proba_real, d_labels_real)
     g_output = generator(x)
@@ -88,11 +95,13 @@ def g_train(x, labels, generator, discriminator):
     G_opt.step()
     return g_loss.data.item()
 
+
 def quick_inference(g_model, input_z):
     g_output = g_model(input_z.unsqueeze(dim=0))
     image = g_output.squeeze().permute(1, 2, 0)
     input_z = input_z.permute(1, 2, 0)
     return (image+1)/2.0, (input_z+1)/2.0
+
 
 stats = {}
 for epoch in range(1, N_EPOCHS):
@@ -109,10 +118,14 @@ for epoch in range(1, N_EPOCHS):
     pbar.finish()
     stat = [g_loss, d_loss]
     if FID:
-        fid_score = Fid.calculate_fid((G_model(X_batch).to(DEVICE), y_batch.to(DEVICE)))
-        print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}  fid score {fid_score}")
+        fid_score = Fid.calculate_fid(
+            (G_model(X_batch).to(DEVICE), y_batch.to(DEVICE)))
+        print(
+            f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}  fid score {fid_score}")
         stat.append(fid_score)
-    else: print(f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
+    else:
+        print(
+            f"\nEpoch {epoch}/{N_EPOCHS}  g_loss {g_losses / len(dataset)}  d_loss {d_losses / len(dataset)}")
     if epoch == 1:
         sample_image = X_batch[0]
         sample_label = y_batch[0]
@@ -123,17 +136,17 @@ for epoch in range(1, N_EPOCHS):
     plt.imshow(samples[1].detach().cpu().numpy())
     plt.axis("off")
     plt.title("input", fontsize=10, pad="2.0")
-    
+
     plt.subplot(1, 3, 2)
     plt.imshow(sample_label.detach().cpu().numpy())
     plt.axis("off")
     plt.title("target", fontsize=10, pad="2.0")
-    
+
     plt.subplot(1, 3, 3)
     plt.imshow(samples[0].detach().cpu().numpy())
     plt.axis("off")
     plt.title("pred", fontsize=10, pad="2.0")
-    
+
     plt.savefig(f"prediction_{epoch}.png", dpi=200)
     state_G = {
         "epoch": epoch,
@@ -146,8 +159,9 @@ for epoch in range(1, N_EPOCHS):
         "optimizer": D_opt.state_dict()
     }
     stats[epoch] = stat
-    torch.save(state_G, os.sep.join(["weights", f"generator_weights_{epoch}.pt"]))
-    torch.save(state_D, os.sep.join(["weights", f"discriminator_weights_{epoch}.pt"]))
+    torch.save(state_G, os.sep.join(
+        ["weights", f"generator_weights_{epoch}.pt"]))
+    torch.save(state_D, os.sep.join(
+        ["weights", f"discriminator_weights_{epoch}.pt"]))
     with open("model_stats.json", "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=4)
-    
