@@ -15,7 +15,7 @@ img = cv2.imread(os.sep.join(["raw", "teststar4.jpg"]))
 # encode image as jpeg
 _, img_encoded = cv2.imencode(".jpg", img)
 # send http request with image and receive response
-response = requests.post(test_url, data=img_encoded.tostring(), headers=headers)
+response = requests.post(test_url, data=img_encoded.tobytes(), headers=headers)
 # decode response
 print(json.loads(response.text))
 

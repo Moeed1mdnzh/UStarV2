@@ -34,12 +34,13 @@ class Inference:
         return pred
 
     def initialize(self):
-        G_state = torch.load(os.sep.join(
-            ["pre_trained_models", "generator_weights_7.pt"]), map_location=torch.device(self._device))
+        # UStarV2 to UStarV2-2
+        G_state = torch.load(os.getcwd().split("UStarV2-2"+os.sep)[0]+os.sep.join(["UStarV2-2", "pre_trained_models", "generator_weights_7.pt"])
+                             , map_location=torch.device(self._device))
         self._g_model.load_state_dict(G_state["state_dict"])
         self._g_opt.load_state_dict(G_state["optimizer"])
-        self._esrgan.load_state_dict(torch.load(os.sep.join(
-            ["pre_trained_models", "RRDB_ESRGAN_x4.pth"])), strict=True)
+        self._esrgan.load_state_dict(torch.load(os.getcwd().split("UStarV2-2"+os.sep)[0]+os.sep.join(["UStarV2-2", "pre_trained_models", "RRDB_ESRGAN_x4.pth"])),
+                                     strict=True)
         self._esrgan.eval()
         self._esrgan = self._esrgan
 
@@ -59,15 +60,15 @@ class Inference:
         return output
 
 # For test
-if __name__ == "__main__":
-    inference = Inference()
-    inference.initialize()
-    import time
-    pre = time.time()
-    image = cv2.imread(os.sep.join(["previews", "teststar2.jpg"]))
-    image = inference.generate(image)
-    print(time.time()-pre)
-    cv2.imwrite("result.png", image)
-    image = cv2.imread("result.png")
-    cv2.imshow("", image)
-    cv2.waitKey(0)
+# if __name__ == "__main__":
+#     inference = Inference()
+#     inference.initialize()
+#     import time
+#     pre = time.time()
+#     image = cv2.imread(os.sep.join(["previews", "teststar2.jpg"]))
+#     image = inference.generate(image)
+#     print(time.time()-pre)
+#     cv2.imwrite("result.png", image)
+#     image = cv2.imread("result.png")
+#     cv2.imshow("", image)
+#     cv2.waitKey(0)
