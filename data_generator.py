@@ -30,29 +30,29 @@ for i in range(3):
     clone[:, :, i] = gray
     for j in range(0, 186, DATA_CONTROL):
         clone[:, :, channels[0]] = j
-        for l in range(1, 72, DATA_CONTROL):
-            bg = np.ones(image.shape, np.uint8) * l 
-            sample_1 = cv2.add(clone, bg)
-            sample_1[bins==0] = 0
-            bg_1 = np.zeros(image.shape, np.uint8)
-            mean = (np.uint8(np.mean(sample_1[:, :, 0][eroded!=0])),
-                    np.uint8(np.mean(sample_1[:, :, 1][eroded!=0])),
-                    np.uint8(np.mean(sample_1[:, :, 2][eroded!=0])))
-            bg_1[eroded==255] = mean
-            raw_sample = augmentor.augment(bg_1)
-            raw_label = augmentor.augment(sample_1)
-            index_2 = index
-            for cluster in raw_sample:
-                for img in cluster:
-                    cv2.imwrite(os.sep.join(["dataset", "images", f"sample_{index}.jpg"]), img)
-                    index += 1
-                    pbar.update(index, ImageNumber=index)
-            for cluster in raw_label:
-                for img in cluster:
-                    cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
-                    index_2 += 1
         for k in range(0, 186, DATA_CONTROL):
             clone[:, :, channels[1]] = k
+            for l in range(1, 72, DATA_CONTROL):
+                bg = np.ones(image.shape, np.uint8) * l 
+                sample_1 = cv2.add(clone, bg)
+                sample_1[bins==0] = 0
+                bg_1 = np.zeros(image.shape, np.uint8)
+                mean = (np.uint8(np.mean(sample_1[:, :, 0][eroded!=0])),
+                        np.uint8(np.mean(sample_1[:, :, 1][eroded!=0])),
+                        np.uint8(np.mean(sample_1[:, :, 2][eroded!=0])))
+                bg_1[eroded==255] = mean
+                raw_sample = augmentor.augment(bg_1)
+                raw_label = augmentor.augment(sample_1)
+                index_2 = index
+                for cluster in raw_sample:
+                    for img in cluster:
+                        cv2.imwrite(os.sep.join(["dataset", "images", f"sample_{index}.jpg"]), img)
+                        index += 1
+                        pbar.update(index, ImageNumber=index)
+                for cluster in raw_label:
+                    for img in cluster:
+                        cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
+                        index_2 += 1
             for m in range(1, 151, DATA_CONTROL):
                 bg = np.ones(image.shape, np.uint8) * m
                 sample_2 = cv2.subtract(clone, bg)

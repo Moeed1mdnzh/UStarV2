@@ -22,7 +22,6 @@ def inference():
     nparr = np.frombuffer(r.data, np.uint8)
     # decode image
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    print(os.getcwd())
     # do some fancy processing here....
     image = ustar_generator.generate(img)
     cv2.imwrite(os.sep.join(["generated", "result.jpg"]), image)

@@ -104,7 +104,7 @@ def quick_inference(g_model, input_z):
 
 
 stats = {}
-for epoch in range(1, N_EPOCHS):
+for epoch in range(1, N_EPOCHS + 1):
     d_losses, g_losses = 0, 0
     print(f"Training {epoch}/{N_EPOCHS}")
     pbar = progressbar.ProgressBar(max_value=len(dataset), widgets=widgets)
