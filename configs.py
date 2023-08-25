@@ -22,6 +22,6 @@ widgets_2 = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', rig
 
 DATA_NAME = "data.jpg"
 
-DATA_CONTROL = 19
+DATA_CONTROL = 36
 
 FID = True
