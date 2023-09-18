@@ -11,7 +11,7 @@ DISC_LOSS = torch.nn.BCELoss()
 GEN_LOSS_1 = torch.nn.BCELoss()
 GEN_LOSS_2 = torch.nn.L1Loss()
 
-N_EPOCHS = 16
+N_EPOCHS = 10
 
 widgets = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', right='|'),
            " ", progressbar.ETA(), " ", progressbar.Variable("g_loss"), " ",
@@ -22,6 +22,6 @@ widgets_2 = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', rig
 
 DATA_NAME = "data.jpg"
 
-DATA_CONTROL = 30
+DATA_CONTROL = 23
 
 FID = True

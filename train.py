@@ -42,7 +42,6 @@ class ImageDataset(torch.utils.data.Dataset):
         image = cv2.imread(self.im_paths[index])
         label = cv2.imread(self.im_paths[index].replace(
             "images", "labels").replace("sample", "label"))
-        label = cv2.GaussianBlur(label, (3, 3), 5)
         image = self.transform(image)
         label = self.transform(label)
         return image, label
