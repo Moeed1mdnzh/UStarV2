@@ -20,7 +20,7 @@ eroded = cv2.erode(dilated, kernel)
 index = 0  # For testing
 augmentor = Augmentor(SHIFT_LIMIT)
 max_val = len(list(range(0, 186, DATA_CONTROL)))**2
-max_val = 3 * max_val * ((len(list(range(1, 72, 30)))*14)+(len(list(range(1, 151, DATA_CONTROL)))*14))
+max_val = 3 * max_val * ((len(list(range(1, 72, DATA_CONTROL)))*14)+(len(list(range(1, 151, 30)))*14))
 pbar = progressbar.ProgressBar(max_value=max_val, widgets=widgets_2)
 for i in range(3):
     channels = [0, 1, 2]
@@ -32,7 +32,7 @@ for i in range(3):
         clone[:, :, channels[0]] = j
         for k in range(0, 186, DATA_CONTROL):
             clone[:, :, channels[1]] = k
-            for l in range(1, 72, 30):
+            for l in range(1, 72, DATA_CONTROL):
                 bg = np.ones(image.shape, np.uint8) * l 
                 sample_1 = cv2.add(clone, bg)
                 sample_1[bins==0] = 0
@@ -53,7 +53,7 @@ for i in range(3):
                     for img in cluster:
                         cv2.imwrite(os.sep.join(["dataset", "labels", f"label_{index_2}.jpg"]), img)
                         index_2 += 1
-            for m in range(1, 151, DATA_CONTROL):
+            for m in range(1, 151, 30):
                 bg = np.ones(image.shape, np.uint8) * m
                 sample_2 = cv2.subtract(clone, bg)
                 sample_2[bins == 0] = 0

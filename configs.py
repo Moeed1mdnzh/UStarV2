@@ -11,7 +11,7 @@ DISC_LOSS = torch.nn.BCELoss()
 GEN_LOSS_1 = torch.nn.BCELoss()
 GEN_LOSS_2 = torch.nn.L1Loss()
 
-N_EPOCHS = 10
+N_EPOCHS = 16
 
 widgets = [progressbar.Percentage(), " ", progressbar.GranularBar(left='', right='|'),
            " ", progressbar.ETA(), " ", progressbar.Variable("g_loss"), " ",

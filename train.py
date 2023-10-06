@@ -16,7 +16,6 @@ from model.weight_init import init_weights
 from model.generator.generator import Generator
 from model.discriminator.discriminator import Discriminator
 
-
 def warn(*args, **kwargs):
     pass
 
@@ -27,8 +26,7 @@ os.system("mkdir weights")
 os.system("mkdir predictions")
 
 tfs = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
-                                      torchvision.transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
-
+                                    torchvision.transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
 
 class ImageDataset(torch.utils.data.Dataset):
     def __init__(self, im_paths, transform):
@@ -40,18 +38,15 @@ class ImageDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         image = cv2.imread(self.im_paths[index])
-        label = cv2.imread(self.im_paths[index].replace(
-            "images", "labels").replace("sample", "label"))
+        label = cv2.imread(self.im_paths[index].replace("images", "labels").replace("sample", "label"))
         image = self.transform(image)
         label = self.transform(label)
         return image, label
 
-
 im_paths = list(paths.list_images(os.sep.join(["dataset", "images"])))
 
 dataset = ImageDataset(im_paths, tfs)
-dataset = torch.utils.data.DataLoader(
-    dataset, batch_size=BATCH_SIZE, shuffle=True)
+dataset = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 G_model = Generator().to(DEVICE)
 D_model = Discriminator().to(DEVICE)
@@ -65,10 +60,9 @@ if FID:
     inceptionv3.eval()
     Fid = FID_Score(inceptionv3)
 
-
 def d_train(x, labels, generator, discriminator):
     discriminator.zero_grad()
-    d_labels_real = torch.ones(x.size(0), 1, device=DEVICE) - 0.1
+    d_labels_real = torch.ones(x.size(0), 1, device=DEVICE)  - 0.1
     d_proba_real = discriminator(labels)
     d_loss_real = DISC_LOSS(d_proba_real, d_labels_real)
     g_output = generator(x)
@@ -95,7 +89,6 @@ def g_train(x, labels, generator, discriminator):
     g_loss.backward()
     G_opt.step()
     return g_loss.data.item()
-
 
 def quick_inference(g_model, input_z):
     g_output = g_model(input_z.unsqueeze(dim=0))
