@@ -24,13 +24,13 @@ class FID_Score:
         ])
 
     def _preprocess_images(self, images_1, images_2):
-        images_1 = self.preprocess(images_1)
-        images_2 = self.preprocess(images_2)
-        return images_1, images_2
+        preprocessed_1 = self.preprocess(images_1)
+        preprocessed_2 = self.preprocess(images_2)
+        return preprocessed_1, preprocessed_2
 
     def _predict_features(self, images_1, images_2):
-        images_1, images_2 = self._preprocess_images(images_1, images_2)
-        return self.inceptionv3(images_1), self.inceptionv3(images_2)
+        preprocessed_1, preprocessed_2 = self._preprocess_images(images_1, images_2)
+        return self.inceptionv3(preprocessed_1), self.inceptionv3(preprocessed_2)
 
     def calculate_fid(self, images):
         images_1, images_2 = self._predict_features(images[0], images[1])
