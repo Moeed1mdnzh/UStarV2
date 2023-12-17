@@ -35,18 +35,20 @@ class Inference:
 
     def initialize(self):
         # UStarV2 to UStarV2-2
-        G_state = torch.load(os.getcwd().split("UStarV2-2"+os.sep)[0]+os.sep.join(["UStarV2-2", "pre_trained_models", "generator_weights_5.pt"])
-                             , map_location=torch.device(self._device))
+        G_state = torch.load(os.sep.join([os.getcwd().split("UStarV2-2"+os.sep)[0], os.sep.join(
+            ["pre_trained_models", "generator_weights_5.pt"])]), map_location=torch.device(self._device))
         self._g_model.load_state_dict(G_state["state_dict"])
         self._g_opt.load_state_dict(G_state["optimizer"])
-        self._esrgan.load_state_dict(torch.load(os.getcwd().split("UStarV2-2"+os.sep)[0]+os.sep.join(["UStarV2-2", "pre_trained_models", "RRDB_ESRGAN_x4.pth"])),
+        self._esrgan.load_state_dict(torch.load(os.sep.join([os.getcwd().split("UStarV2-2"+os.sep)[0], os.sep.join(["pre_trained_models", "RRDB_ESRGAN_x4.pth"])])),
                                      strict=True)
         self._esrgan.eval()
         self._esrgan = self._esrgan
 
-    def generate(self, image):
+    def generate(self, image, super_resolute=False):
         prep = self._prep(image)
         pred = self._predict(prep)
+        if not super_resolute:
+            return pred
         img = pred * 1.0 / 255
         img = torch.from_numpy(np.transpose(
             img[:, :, [2, 1, 0]], (2, 0, 1))).float()
