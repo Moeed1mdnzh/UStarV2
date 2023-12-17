@@ -69,5 +69,10 @@ Make a folder named *pre_trained_models* folder in the main folder.Next use the 
 and put both models in the *pre_trained_models* folder.
 ## Run
 Simply type in<br />
-`python main.py`
-  
+`python main.py`<br />
+![](https://github.com/Moeed1mdnzh/UStarV2/blob/master/assets/page_1.JPG)<br />
+This is the screen you must face after running the main file.<br />
+Choose your pen size from the slider on the top.<br />Choose your desired color from the color palette on the left.<br />The main tools are illustrated on the left side of the screen(brush and eraser) with the exception of a third tool.With the help of that tool
+you are able to brush scatteredly.<br />The buttons on the right are obvious as you expect.If you activate **Super-Resolute** the program decides wether to use the ESRGAN model or not.Here's the outcome screen<br />
+![](https://github.com/Moeed1mdnzh/UStarV2/blob/master/assets/page_2.JPG)<br /> 
+I suppose in this page, everything is obvious.The saved image, can be found in the main folder with the name ***result.png***
