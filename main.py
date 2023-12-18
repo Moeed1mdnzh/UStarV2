@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from utilities import tools, pages
+from utilities import pages
 from inference import Inference
 
 
