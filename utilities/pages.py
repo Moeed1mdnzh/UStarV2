@@ -37,7 +37,7 @@ class Design:
 
     def sliders(self):
         cv2.setTrackbarMin("Pen Size: ", "UStar-V2", 1)
-        cv2.setTrackbarMax("Pen Size: ", "UStar-V2", 20)
+        cv2.setTrackbarMax("Pen Size: ", "UStar-V2", 150)
         return cv2.getTrackbarPos("Pen Size: ", "UStar-V2")
 
     def drawing_window(self, bg):

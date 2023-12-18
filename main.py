@@ -10,7 +10,7 @@ class Integrate:
 
     def run(self, ):
         cv2.namedWindow("UStar-V2", cv2.WINDOW_AUTOSIZE)
-        cv2.createTrackbar("Pen Size: ", "UStar-V2", 1, 20, lambda x: None)
+        cv2.createTrackbar("Pen Size: ", "UStar-V2", 1, 150, lambda x: None)
         cv2.resizeWindow("UStar-V2", self.design.size[0], self.design.size[1])
         sample = np.zeros((384, 384, 3), dtype=np.uint8)
         self.design.drawing_window(self.design.bg)
